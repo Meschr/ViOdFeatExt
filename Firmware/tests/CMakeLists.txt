@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.15)
 project(firmware_tests_examples LANGUAGES C CXX)
 
 # Build only test_imu explicitly:
-add_executable(test_imu ${CMAKE_CURRENT_SOURCE_DIR}/test_imu.cpp)
+add_executable(test_imu ${CMAKE_CURRENT_SOURCE_DIR}/imu_test.cpp)
 
 # Ensure headers are findable
 target_include_directories(test_imu PRIVATE
