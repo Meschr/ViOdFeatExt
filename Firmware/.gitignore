@@ -1,0 +1,40 @@
+# Build artifacts
+/build/
+/build-*/
+
+/CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+
+# Static and object files
+*.o
+*.obj
+*.so
+*.a
+*.lib
+*.dll
+*.exe
+*.out
+*.elf
+
+# Linking / indexing / coverage
+*.gcda
+*.gcno
+*.gcov
+*.dSYM/
+
+# Editor/IDE files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# OS/filesystem
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*~
+*.swp
