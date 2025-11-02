@@ -98,3 +98,5 @@ Notes and tips:
 - `i2cdetect` requires root privileges (hence `sudo`).
 - On some systems (e.g., Raspberry Pi) you may need to enable I2C via system configuration (raspi-config) or load kernel modules such as `i2c-dev`.
 - Use `man i2cdetect` or `i2c-tools` documentation for more options and details.
+
+# ip adress: 192.168.55.2

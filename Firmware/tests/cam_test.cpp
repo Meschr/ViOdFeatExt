@@ -11,11 +11,9 @@ int main(int argc, char **argv) {
   int picCnt = 0;
   CaptureDevice camDev;
   camDev.Init();
-  /*
-  while (picCnt < 10) {
-    camDev.GetImage();
-    picCnt++;
-  }*/
+  camDev.GetFpsRightCamera();
+  camDev.GetFpsLeftCamera();
+
   for (int i = 0; i < 20; ++i) { // capture 10 frames
     cv::Mat left, right;
 

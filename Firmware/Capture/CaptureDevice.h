@@ -9,6 +9,8 @@ class CaptureDevice {
 public:
   void Init();
   cv::Mat GetImage();
+  double GetFpsLeftCamera();
+  double GetFpsRightCamera();
 
 private:
   cv::VideoCapture *mLeftCam;
