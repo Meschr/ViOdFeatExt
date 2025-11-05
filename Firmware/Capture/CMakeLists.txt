@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION 3.10)
 
 project(CaptureDevice LANGUAGES C CXX)
 
@@ -16,9 +16,10 @@ add_library(captureDevice STATIC ${CAPTUREDEVICE_SOURCES})
 target_include_directories(captureDevice
   PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}
+    ${OpenCV_INCLUDE_DIRS}
 )
 
-target_link_libraries(captureDevice ${OpenCV_LIBS})
+target_link_libraries(captureDevice PRIVATE ${OpenCV_LIBS} stdc++fs)
 
 # Ensure a sane C standard for consumers
-target_compile_features(i2c PUBLIC c_std_17)
+target_compile_features(i2c PUBLIC cxx_std_17)

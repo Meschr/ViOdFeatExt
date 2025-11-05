@@ -33,17 +33,16 @@ cv::Mat CaptureDevice::GetImage() {
   }
 
   return frame;
-  // Display it
-  // cv::imshow("Captured Image", frame);
-  // cv::waitKey(0);
 }
 
 double CaptureDevice::GetFpsLeftCamera() {
   double fps = mLeftCam->get(cv::CAP_PROP_FPS);
   std::cout << "Left Camera FPS: " << fps << std::endl;
+  return fps;
 }
 
 double CaptureDevice::GetFpsRightCamera() {
   double fps = mRightCam->get(cv::CAP_PROP_FPS);
   std::cout << "Right Camera FPS: " << fps << std::endl;
+  return fps;
 }
