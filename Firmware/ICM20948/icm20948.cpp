@@ -22,15 +22,15 @@
 
 #include <cmath>
 #include <cstdint>
-#ifdef LOG
 #include <cstdio>
-#endif /* LOG */
 #include <cstring>
 #include <fcntl.h>
 #include <linux/i2c-dev.h>
 #include <sys/ioctl.h>
 #include <time.h>
 #include <unistd.h>
+#include <stdio.h>
+#include <iostream>
 
 #include "icm20948.h"
 
