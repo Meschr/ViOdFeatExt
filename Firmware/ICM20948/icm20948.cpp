@@ -201,13 +201,14 @@ bool ICM20948::initialise(const Config &config) {
   if (strcmp(config.mDevice, mConfig.mDevice) != 0) {
     mI2C.closeSerialPort();
   }
-
+  printf("Init IMU\n");	
   mConfig = config;
   mData.mUpdatePeriod = 1.0f / mConfig.mFramerate;
 
   if (mI2C.openSerialPort(mConfig.mDevice)) {
     setBank(BANK_0);
     deviceID = mI2C.readByte(I2C_ADD_ICM20948, REG_ADD_WIA);
+    std::cout << "DeviceID: " << deviceID << std::endl;
     if (REG_VAL_WIA == deviceID) {
       /* Reset all IMU configuration. */
       reset();

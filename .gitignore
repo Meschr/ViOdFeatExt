@@ -10,6 +10,8 @@ CMakeFiles/
 .vscode/launch.json
 .vscode/tasks.json
 
+LogData/
+
 # macOS / Linux
 .DS_Store
 *.o
