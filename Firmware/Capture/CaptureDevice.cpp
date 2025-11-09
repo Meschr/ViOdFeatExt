@@ -5,13 +5,13 @@ void CaptureDevice::Init() {
   mLeftCam = cv::VideoCapture("nvarguscamerasrc sensor-id=0 ! video/x-raw(memory:NVMM), width=640, height=480, format=(string)NV12, framerate=(fraction)20/1 ! nvvidconv flip-method=0 ! video/x-raw, width=640, height=480, format=(string)BGRx ! videoconvert ! video/x-raw, format=(string)BGR ! appsink", cv::CAP_GSTREAMER);
 
   if (!mLeftCam.isOpened()) {
-    std::cerr << "Error: Could not open left camera." << std::endl;
+    throw std::runtime_error("Error: Could not open left camera.");
     return;
   }
 
   mRightCam = cv::VideoCapture("nvarguscamerasrc sensor-id=1 ! video/x-raw(memory:NVMM), width=640, height=480, format=(string)NV12, framerate=(fraction)20/1 ! nvvidconv flip-method=0 ! video/x-raw, width=640, height=480, format=(string)BGRx ! videoconvert ! video/x-raw, format=(string)BGR ! appsink", cv::CAP_GSTREAMER);
   if (!mRightCam.isOpened()) {
-    std::cerr << "Error: Could not open right camera." << std::endl;
+    throw std::runtime_error("Error: Could not open right camera.");
     return;
   }
   // TODO: set camera parameters and calibration
@@ -28,7 +28,7 @@ cv::Mat CaptureDevice::GetLeftImage() {
   mLeftCam >> frame;
 
   if (frame.empty()) {
-    std::cerr << "Error: Captured empty frame." << std::endl;
+    throw std::runtime_error("Error: Captured empty frame.");
     return cv::Mat();
   }
 
@@ -41,7 +41,7 @@ cv::Mat CaptureDevice::GetRightImage() {
   mRightCam >> frame;
 
   if (frame.empty()) {
-    std::cerr << "Error: Captured empty frame." << std::endl;
+    throw std::runtime_error("Error: Captured empty frame.");
     return cv::Mat();
   }
 
@@ -57,7 +57,7 @@ cv::Mat CaptureDevice::GetStereoImage() {
               frame);
 
   if (frame.empty()) {
-    std::cerr << "Error: Captured empty frame." << std::endl;
+    throw std::runtime_error("Error: Captured empty frame.");
     return cv::Mat();
   }
 

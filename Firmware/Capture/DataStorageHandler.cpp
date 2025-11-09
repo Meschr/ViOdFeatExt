@@ -4,7 +4,7 @@ bool DataStorageHandler::Init() {
   std::cout << "Enter subfolder name: ";
   std::getline(std::cin, subfolderName);
   if (subfolderName.empty()) {
-    std::cerr << "Error: Subfolder name cannot be empty.\n";
+    throw std::runtime_error("Error: Subfolder name cannot be empty.\n");
     return false;
   }
 
@@ -16,7 +16,7 @@ bool DataStorageHandler::Init() {
   csvFilePath = outputDirectory / "data.csv";
   csvFile.open(csvFilePath, std::ios::out);
   if (!csvFile.is_open()) {
-    std::cerr << "Error: Could not open CSV file for writing.\n";
+    throw std::runtime_error("Error: Could not open CSV file for writing.\n");
     return false;
   }
 
@@ -31,7 +31,7 @@ bool DataStorageHandler::Init() {
 std::string DataStorageHandler::SaveImage(const cv::Mat &img,
                                           const std::string &prefix) {
   if (img.empty()) {
-    std::cerr << "Error: Empty image provided to SaveImage.\n";
+    throw std::runtime_error("Error: Empty image provided to SaveImage.\n");
     return "";
   }
 
