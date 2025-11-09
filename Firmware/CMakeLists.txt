@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 project(ViOdFeatExt_Firmware LANGUAGES C CXX)
 set(CMAKE_CXX_STANDARD 17)
+
 # Add component directories
 add_subdirectory(I2C)
 add_subdirectory(ICM20948)

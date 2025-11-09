@@ -22,5 +22,4 @@ target_include_directories(captureDevice
 target_link_libraries(captureDevice PRIVATE ${OpenCV_LIBS} stdc++fs)
 
 # Ensure a sane C standard for consumers
-# target_compile_features(i2c PUBLIC c_std_11)
 target_compile_features(i2c PUBLIC cxx_std_17)
