@@ -13,9 +13,10 @@ public:
       : baseDirectory(baseDir) {}
   bool Init();
   std::string SaveImage(const cv::Mat &img, const std::string &prefix);
-  void SaveData(double accX, double accY, double accZ, double gyroX,
-                double gyroY, double gyroZ, double magX, double magY,
-                double magZ, const std::string &leftImageName,
+  void SaveData(int64_t timestamp, int packetId, double accX, double accY,
+                double accZ, double gyroX, double gyroY, double gyroZ,
+                double magX, double magY, double magZ,
+                const std::string &leftImageName,
                 const std::string &rightImageName);
 
 private:

@@ -1,6 +1,6 @@
-#include "icm20948.h"
 #include "CaptureDevice.h"
 #include "DataStorageHandler.h"
+#include "icm20948.h"
 
 #include <stdio.h>
 #include <time.h>
@@ -63,7 +63,7 @@ int main(int argc, char **argv) {
       calib = static_cast<bool>(atoi(argv[i + 1]));
     } else if ((0 == strcmp(argv[i], "--freq")) ||
                (0 == strcmp(argv[i], "-f"))) {
-      period = 1/static_cast<double>(atoi(argv[i + 1]));
+      period = 1 / static_cast<double>(atoi(argv[i + 1]));
     } else if ((0 == strcmp(argv[i], "--help")) ||
                (0 == strcmp(argv[i], "-h"))) {
       printHelp(argv[0]);
@@ -71,13 +71,11 @@ int main(int argc, char **argv) {
     }
   }
 
-
   // initialisation error handling
   try {
     dH.Init();
     camDev.Init();
-  } 
-  catch(const std::exception& e) {
+  } catch (const std::exception &e) {
     std::cerr << e.what() << '\n';
     return 1;
   }
@@ -96,12 +94,11 @@ int main(int argc, char **argv) {
     currentTime = getTime();
 
     /**Get data*/
-    try{
+    try {
       data = &imu.imuDataGet();
       left = camDev.GetLeftImage();
       right = camDev.GetRightImage();
-    }
-    catch(const std::exception& e) {
+    } catch (const std::exception &e) {
       std::cerr << e.what() << '\n';
       return 1;
     }
@@ -109,24 +106,22 @@ int main(int argc, char **argv) {
     std::string leftName = dH.SaveImage(left, "left");
     std::string rightName = dH.SaveImage(right, "right");
 
-    dH.SaveData(data->mAcc[0], data->mAcc[1], data->mAcc[2], 
-                data->mGyro[0], data->mGyro[1], data->mGyro[2], 
-                data->mMag[0], data->mMag[1], data->mMag[2], 
-                leftName, rightName);
+    dH.SaveData(0, 0, data->mAcc[0], data->mAcc[1], data->mAcc[2],
+                data->mGyro[0], data->mGyro[1], data->mGyro[2], data->mMag[0],
+                data->mMag[1], data->mMag[2], leftName, rightName);
 
     /* Calculate sleep time by taking expected period between IMU updates and
-      * reducing it by a time needed to process data. */
-    sleepTime = static_cast<int>(
-        ((period) - (getTime() - currentTime)) * 1000000.0);
+     * reducing it by a time needed to process data. */
+    sleepTime =
+        static_cast<int>(((period) - (getTime() - currentTime)) * 1000000.0);
     /* We use signed type in case processing takes more than expected period
-      * between updates. */
+     * between updates. */
     if (sleepTime > 0)
       usleep(static_cast<uint>(sleepTime));
     else
-      std::cerr << "WARNING: Unable to keep configured period by "<< std::to_string(sleepTime/1000000.0) << '\n';    
+      std::cerr << "WARNING: Unable to keep configured period by "
+                << std::to_string(sleepTime / 1000000.0) << '\n';
   }
-  
 
-  
   return 0;
 }

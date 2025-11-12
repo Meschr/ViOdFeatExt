@@ -21,7 +21,7 @@ bool DataStorageHandler::Init() {
   }
 
   // write header
-  csvFile << "timestamp,acc_x,acc_y,acc_z,"
+  csvFile << "timestamp,packetNumber,acc_x,acc_y,acc_z,"
           << "gyro_x,gyro_y,gyro_z,"
           << "mag_x,mag_y,mag_z,"
           << "left_image,right_image\n";
@@ -43,17 +43,14 @@ std::string DataStorageHandler::SaveImage(const cv::Mat &img,
   return filename.str();
 }
 
-void DataStorageHandler::SaveData(double accX, double accY, double accZ,
-                                  double gyroX, double gyroY, double gyroZ,
-                                  double magX, double magY, double magZ,
+void DataStorageHandler::SaveData(int64_t timestamp, int packetId, double accX,
+                                  double accY, double accZ, double gyroX,
+                                  double gyroY, double gyroZ, double magX,
+                                  double magY, double magZ,
                                   const std::string &leftImageName,
                                   const std::string &rightImageName) {
-  auto now = std::chrono::system_clock::now();
-  auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(
-                now.time_since_epoch())
-                .count();
-
-  csvFile << ms << "," << accX << "," << accY << "," << accZ << "," << gyroX
-          << "," << gyroY << "," << gyroZ << "," << magX << "," << magY << ","
-          << magZ << "," << leftImageName << "," << rightImageName << "\n";
+  csvFile << timestamp << "," << packetId << "," << accX << "," << accY << ","
+          << accZ << "," << gyroX << "," << gyroY << "," << gyroZ << "," << magX
+          << "," << magY << "," << magZ << "," << leftImageName << ","
+          << rightImageName << "\n";
 }
