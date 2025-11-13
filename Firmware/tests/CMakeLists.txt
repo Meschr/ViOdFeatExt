@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.10)
 project(firmware_tests_examples LANGUAGES C CXX)
 
+find_package(Threads REQUIRED)
+
 # Build only test_imu explicitly:
 add_executable(test_imu ${CMAKE_CURRENT_SOURCE_DIR}/imu_test.cpp)
 add_executable(test_capture_device ${CMAKE_CURRENT_SOURCE_DIR}/cam_test.cpp)
@@ -42,8 +44,8 @@ target_include_directories(test_stereocamMT PRIVATE
 target_link_libraries(test_imu PRIVATE i2c icm20948)
 target_link_libraries(test_capture_device PRIVATE captureDevice)
 target_link_libraries(test_full_capture PRIVATE i2c icm20948 captureDevice)
-target_link_libraries(test_webcamMT PRIVATE captureDevice)
-target_link_libraries(test_stereocamMT PRIVATE i2c icm20948 captureDevice)
+target_link_libraries(test_webcamMT PRIVATE captureDevice Threads::Threads)
+target_link_libraries(test_stereocamMT PRIVATE i2c icm20948 captureDevice Threads::Threads)
 
 # Optionally set C++ standard
 target_compile_features(test_imu PRIVATE cxx_std_11)

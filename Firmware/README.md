@@ -99,4 +99,19 @@ Notes and tips:
 - On some systems (e.g., Raspberry Pi) you may need to enable I2C via system configuration (raspi-config) or load kernel modules such as `i2c-dev`.
 - Use `man i2cdetect` or `i2c-tools` documentation for more options and details.
 
-# ip adress: 192.168.55.2
+## Static ethernet IP address
+ip adress: 192.168.55.2
+
+# Known bugs
+## Threaded capture not releasing the video input
+
+```
+GStreamer-CRITICAL **: 18:26:25.319: gst_mini_object_set_qdata: assertion 'object != NULL' failed
+[ WARN:0] global /home/nvidia/host/build_opencv/nv_opencv/modules/videoio/src/cap_gstreamer.cpp (933) open OpenCV | GStreamer warning: Cannot query video position: status=0, value=-1, duration=-1
+```
+
+Solution:
+```sh
+sudo systemctl restart nvargus-daemon
+```
+
