@@ -8,6 +8,13 @@ bool DataStorageHandler::Init() {
     return false;
   }
 
+  auto now = std::chrono::system_clock::now();
+  std::time_t time_now = std::chrono::system_clock::to_time_t(now);
+  std::tm tm_now = *std::localtime(&time_now);
+  std::stringstream ss;
+  ss << std::put_time(&tm_now, "%Y-%m-%d_%H-%M-%S");
+  subfolderName = ss.str() + "_" + subfolderName;
+
   outputDirectory = baseDirectory / subfolderName;
   if (!std::filesystem::exists(outputDirectory)) {
     std::filesystem::create_directories(outputDirectory);
