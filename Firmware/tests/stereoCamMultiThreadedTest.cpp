@@ -1,7 +1,9 @@
 #include "icm20948.h"
 #include <CaptureDevice.h>
 #include <DataStorageHandler.h>
+#include <atomic>
 #include <chrono>
+#include <csignal>
 #include <future>
 #include <iostream>
 #include <optional>
@@ -28,6 +30,14 @@ void printHelp(const char *name) {
 }
 
 ThreadSafeQueue<std::optional<DataPacket>> data_queue;
+
+std::atomic<bool> g_shutdown_flag(false);
+
+void signal_handler(int signum) {
+  std::cout << "\n[Main] Shutdown signal (" << signum
+            << ") received. Finishing up..." << std::endl;
+  g_shutdown_flag = true;
+}
 
 void data_capture(double target_fps, std::future<void> startSignal) {
   std::cout << "[Capture] Starting. Target FPS: " << target_fps
@@ -67,6 +77,13 @@ void data_capture(double target_fps, std::future<void> startSignal) {
   while (std::chrono::duration_cast<std::chrono::seconds>(
              std::chrono::steady_clock::now() - start_time)
              .count() < maxRunDuration) {
+
+    if (g_shutdown_flag) {
+      std::cout << "[Capture] Shutdown flag set. Exiting capture loop."
+                << std::endl;
+      break;
+    }
+
     auto loop_start_time = std::chrono::steady_clock::now();
 
     // 1. CAPTURE DATA
@@ -151,6 +168,9 @@ int main(int argc, char **argv) {
       return 0;
     }
   }
+
+  signal(SIGINT, signal_handler);
+  signal(SIGTERM, signal_handler);
 
   std::cout << "[Main] Starting Producer and Consumer threads..." << std::endl;
 

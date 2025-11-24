@@ -5,7 +5,7 @@ void CaptureDevice::Init() {
   mLeftCam = cv::VideoCapture(
       "nvarguscamerasrc sensor-id=0 ! video/x-raw(memory:NVMM), width=640, "
       "height=480, format=(string)NV12, framerate=(fraction)20/1 ! nvvidconv "
-      "flip-method=0 ! video/x-raw, width=640, height=480, format=(string)BGRx "
+      "flip-method=2 ! video/x-raw, width=640, height=480, format=(string)BGRx "
       "! videoconvert ! video/x-raw, format=(string)BGR ! appsink",
       cv::CAP_GSTREAMER);
 
@@ -17,7 +17,7 @@ void CaptureDevice::Init() {
   mRightCam = cv::VideoCapture(
       "nvarguscamerasrc sensor-id=1 ! video/x-raw(memory:NVMM), width=640, "
       "height=480, format=(string)NV12, framerate=(fraction)20/1 ! nvvidconv "
-      "flip-method=0 ! video/x-raw, width=640, height=480, format=(string)BGRx "
+      "flip-method=2 ! video/x-raw, width=640, height=480, format=(string)BGRx "
       "! videoconvert ! video/x-raw, format=(string)BGR ! appsink",
       cv::CAP_GSTREAMER);
   if (!mRightCam.isOpened()) {

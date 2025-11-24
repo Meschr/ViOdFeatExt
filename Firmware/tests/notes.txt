@@ -1,0 +1,16 @@
+1st test run 
+movement towards/ away from the satellite 50cm? for 2 loops with speed of 30 mm/s Aand 
+started when closer to the satellite (extended position)
+
+2nd test run
+same setup but turned towards the room, so the movement happens in x axis not depth. 40 cm (150-550 mm) linear speed 30 mm/s
+Started when fully extended to the right side of the room
+
+3rd test run
+lookinf down at the sand terrain, moving at speed of 30 mm/s linearry and  30 cm of distance
+
+4th test run
+a square with the length being 200 mm on one side and 250 mm on the other side, linear movement speed 30 mm/samesterted 
+
+5th test run
+rotation by 90 degres with angular speed 15 deg/s from the terrain towards the room
