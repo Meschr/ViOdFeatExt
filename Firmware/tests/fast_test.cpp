@@ -14,7 +14,14 @@ std::vector<cv::KeyPoint> single_FAST(const cv::Mat& img) {
 
 //implementing ORB for finding both keypoints and their descriptors
 std::pair<std::vector<cv::KeyPoint>, cv::Mat> single_ORB(const cv::Mat& img) {
-    auto orb = cv::ORB::create(100);  
+    clock_t start1  = clock();
+
+    auto orb = cv::ORB::create(200);  
+
+    clock_t matcher2 = clock();
+    double one_img_time = double(matcher2 - start1) / CLOCKS_PER_SEC;
+    std::cout << "Spent time: " << one_img_time << " seconds." << std::endl;
+
     std::vector<cv::KeyPoint> keypoints;
     cv::Mat descriptors;
     orb->detectAndCompute(img, cv::noArray(), keypoints, descriptors);
@@ -33,7 +40,7 @@ std::vector<cv::DMatch> descriptor_matcher(const cv::Mat& descriptors1, const cv
 
         std::vector<cv::DMatch> good;
         for (auto& m : knnMatches) {
-            if (m[0].distance < 0.5f * m[1].distance) { //can change this value to say how much better the best match has to be compared to second best
+            if (m[0].distance < 0.50f * m[1].distance) { //can change this value to say how much better the best match has to be compared to second best
                 good.push_back(m[0]);
             }}
     return good;
@@ -59,8 +66,9 @@ void draw_and_show(const cv::Mat& imgL,
 
 
 int main() {
-    std::string image_path1 = "/home/robinazv/ViOdFeatExt/LogData/2025-11-18_1/2025-11-18_11-47-30_linearMovement1TowardsSatellite500mm/right_000001.png";
-    std::string image_path2 = "/home/robinazv/ViOdFeatExt/LogData/2025-11-18_1/2025-11-18_11-47-30_linearMovement1TowardsSatellite500mm/left_000000.png";
+    std::string image_path1 = "/home/robinazv/ViOdFeatExt/LogData/2025-11-18_1/2025-11-18_12-08-38_linearMovementPointedTowardsMoon300mm/left_000022.png";
+    std::string image_path2 = "/home/robinazv/ViOdFeatExt/LogData/2025-11-18_1/2025-11-18_12-08-38_linearMovementPointedTowardsMoon300mm/left_000024.png";
+    
     cv::Mat imgL = cv::imread(image_path1, cv::IMREAD_GRAYSCALE);
     cv::Mat imgR = cv::imread(image_path2, cv::IMREAD_GRAYSCALE);
     
