@@ -9,7 +9,7 @@ message("OpenCV Include Path: ${OpenCV_INCLUDE_DIRS}")
 set(CAPTUREDEVICE_SOURCES
   ${CMAKE_CURRENT_SOURCE_DIR}/CaptureDevice.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/DataStorageHandler.cpp
-)
+  )
 
 add_library(captureDevice STATIC ${CAPTUREDEVICE_SOURCES})
 
@@ -22,4 +22,4 @@ target_include_directories(captureDevice
 target_link_libraries(captureDevice PRIVATE ${OpenCV_LIBS} stdc++fs)
 
 # Ensure a sane C standard for consumers
-target_compile_features(i2c PUBLIC cxx_std_17)
+target_compile_features(captureDevice PUBLIC cxx_std_17)
