@@ -6,6 +6,7 @@ set(CMAKE_CXX_STANDARD 17)
 add_subdirectory(I2C)
 add_subdirectory(ICM20948)
 add_subdirectory(Capture)
+add_subdirectory(DataProcessing)
 
 # Build executables in tests/ (one per .cpp). Enable by uncommenting the line below.
 # If you prefer to keep tests/ ignored, leave this commented.
