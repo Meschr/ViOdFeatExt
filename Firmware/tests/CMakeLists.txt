@@ -13,7 +13,7 @@ add_executable(test_full_capture ${CMAKE_CURRENT_SOURCE_DIR}/capture_test.cpp)
 add_executable(test_webcamMT ${CMAKE_CURRENT_SOURCE_DIR}/webcamMultiThreadedTest.cpp)
 add_executable(test_stereocamMT ${CMAKE_CURRENT_SOURCE_DIR}/stereoCamMultiThreadedTest.cpp)
 add_executable(test_sift_time ${CMAKE_CURRENT_SOURCE_DIR}/sift_time_test.cpp)
-add_executable(test_fast_time ${CMAKE_CURRENT_SOURCE_DIR}/fast_time_test.cpp)
+add_executable(test_fast_time ${CMAKE_CURRENT_SOURCE_DIR}/fast_test.cpp)
 
 
 # Ensure headers are findable
@@ -49,6 +49,10 @@ target_include_directories(test_stereocamMT PRIVATE
 # fixing opencv to work for me
 target_link_libraries(test_sift_time ${OpenCV_LIBS})
 target_include_directories(test_sift_time PRIVATE 
+  ${OpenCV_INCLUDE_DIRS}
+)
+target_link_libraries(test_fast_time ${OpenCV_LIBS})
+target_include_directories(test_fast_time PRIVATE 
   ${OpenCV_INCLUDE_DIRS}
 )
 
