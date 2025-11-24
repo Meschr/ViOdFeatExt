@@ -22,6 +22,17 @@ void saveStereoCalibration(const std::string& filename,
                            const cv::Mat& R,  
                            const cv::Mat& T);
 
+void loadStereoCalibration(const std::string& filename,
+                           cv::Size& imageSize,
+                           cv::Mat& K1, 
+                           cv::Mat& D1,
+                           cv::Mat& P1,
+                           cv::Mat& K2, 
+                           cv::Mat& D2,
+                           cv::Mat& P2,
+                           cv::Mat& R,  
+                           cv::Mat& T);
+
 void intrinsicAproximation(const double focalLength, 
                            const double horizontalFoV, 
                            const double verticalFoV, 

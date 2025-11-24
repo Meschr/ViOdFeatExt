@@ -82,17 +82,6 @@ void checkBoardCalibration(const cv::Size boardSize,
 
     std::cout << "Stereo calibration RMS error = " << rms << std::endl;
     std::cout << "K1:\n" << K1 << "\nD1:\n" << D1 << "\nK2:\n" << K2 << "\nD2:\n" << D2 << std::endl;
-
-    // // baseline in meters (since squareSize was in meters)
-    // double baseline = cv::norm(T);
-    // std::cout << "Baseline (meters): " << baseline << std::endl;
-
-    // // --- rectify and get projection matrices and Q ---
-    // cv::Mat R1, R2, Q;
-    // cv::stereoRectify(K1, D1, K2, D2, imageSize, R, T, R1, R2, P1, P2, Q);
-
-    // std::cout << "P1:\n" << P1 << "\nP2:\n" << P2 << "\nQ:\n" << Q << std::endl;
-
 }
 
 void saveStereoCalibration(const std::string& filename,
@@ -122,6 +111,39 @@ void saveStereoCalibration(const std::string& filename,
     fs << "P2" << P2;
     fs << "R"  << R;
     fs << "T"  << T;
+
+    fs.release();
+}
+
+void loadStereoCalibration(const std::string& filename,
+                           cv::Size& imageSize,
+                           cv::Mat& K1, 
+                           cv::Mat& D1,
+                           cv::Mat& P1,
+                           cv::Mat& K2, 
+                           cv::Mat& D2,
+                           cv::Mat& P2,
+                           cv::Mat& R,  
+                           cv::Mat& T) {
+    cv::FileStorage fs(filename, cv::FileStorage::READ);
+    if (!fs.isOpened()) {
+        std::cerr << "Could not open file " << filename << " for reading\n";
+        return;
+    }
+
+    int w, h;
+    fs["image_width"]  >> w;
+    fs["image_height"] >> h;
+    imageSize = cv::Size(w, h);
+
+    fs["K1"] >> K1;
+    fs["D1"] >> D1;
+    fs["P1"] >> P1;
+    fs["K2"] >> K2;
+    fs["D2"] >> D2;
+    fs["P2"] >> P2;
+    fs["R"]  >> R;
+    fs["T"]  >> T;
 
     fs.release();
 }
