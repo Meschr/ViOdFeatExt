@@ -2,7 +2,7 @@
 #include <ctime>
 
 
-// function to just get the keypoints and the descriptors using SIFT
+// function to just get the keypoints and the descriptors using SIFT .
 std::pair<std::vector<cv::KeyPoint>, cv::Mat> single_SIFT(const cv::Mat& img) {
     auto sift = cv::SIFT::create(30);
     std::vector<cv::KeyPoint> keypoints;
