@@ -11,6 +11,7 @@ CMakeFiles/
 .vscode/tasks.json
 
 LogData/
+Firmware/tests/venv/
 
 # macOS / Linux
 .DS_Store
