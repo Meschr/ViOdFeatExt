@@ -14,19 +14,13 @@ std::vector<cv::KeyPoint> single_FAST(const cv::Mat& img) {
 
 //implementing ORB for finding both keypoints and their descriptors
 std::pair<std::vector<cv::KeyPoint>, cv::Mat> single_ORB(const cv::Mat& img) {
-    clock_t start1  = clock();
-
     auto orb = cv::ORB::create(200);  
-
-    clock_t matcher2 = clock();
-    double one_img_time = double(matcher2 - start1) / CLOCKS_PER_SEC;
-    std::cout << "Spent time: " << one_img_time << " seconds." << std::endl;
-
     std::vector<cv::KeyPoint> keypoints;
     cv::Mat descriptors;
     orb->detectAndCompute(img, cv::noArray(), keypoints, descriptors);
     return { keypoints, descriptors };
 }
+
 
 
 
@@ -45,6 +39,28 @@ std::vector<cv::DMatch> descriptor_matcher(const cv::Mat& descriptors1, const cv
             }}
     return good;
 }
+
+
+
+
+
+
+//implementing orb and keypoint matching in one function
+std::tuple<std::vector<cv::KeyPoint>, std::vector<cv::KeyPoint>, std::vector<cv::DMatch>> ORB_and_match(const cv::Mat& img1, const cv::Mat& img2) {
+    auto orb = cv::ORB::create(100);
+
+    std::vector<cv::KeyPoint> keypoints1, keypoints2;
+    cv::Mat descriptors1, descriptors2;
+
+    orb->detectAndCompute(img1, cv::noArray(), keypoints1, descriptors1);
+    orb->detectAndCompute(img2, cv::noArray(), keypoints2, descriptors2);
+
+    auto matches = descriptor_matcher(descriptors1, descriptors2);
+
+    return { keypoints1, keypoints2, matches };
+}
+
+
 
 
 
@@ -71,31 +87,29 @@ int main() {
     
     cv::Mat imgL = cv::imread(image_path1, cv::IMREAD_GRAYSCALE);
     cv::Mat imgR = cv::imread(image_path2, cv::IMREAD_GRAYSCALE);
-    
     clock_t start = clock();
 
-	auto [keypoints1, descriptors1] = single_ORB(imgL);
-    clock_t one_img = clock();
 
-    auto [keypoints2, descriptors2] = single_ORB(imgR);
-    clock_t two_img = clock();
+    //one function to do ORB and matching
+    auto [keypoints1, keypoints2, matches] = ORB_and_match(imgL, imgR);
+    clock_t t1 = clock();
 
-    auto matches = descriptor_matcher(descriptors1, descriptors2);
-    clock_t matcher = clock();
+    std::cout << "this is inside the keypoints: ">> keypoints1[1] << std::endl;
+
+    //3 functions to do the ORB and matching
+	//auto [keypoints1, descriptors1] = single_ORB(imgL);
+    //auto [keypoints2, descriptors2] = single_ORB(imgR);
+    //auto matches = descriptor_matcher(descriptors1, descriptors2);  
+    clock_t t2 = clock();
+
+    double elapsed = double(t1 - start) / CLOCKS_PER_SEC;
+    double elapsed2 = double(t2 - t1) / CLOCKS_PER_SEC;
+    std::cout << "Spent time for 1 function: " << elapsed << " seconds." << std::endl;
+    std::cout << "Spent time for 3 functions: " << elapsed2 << " seconds." << std::endl;
+
 
 
     draw_and_show(imgL, imgR, keypoints1, keypoints2, matches);
-
-    // got the clock from https://docs.vultr.com/cpp/standard-library/ctime/clock 
-    clock_t whole = clock();
-    double one_img_time = double(one_img - start) / CLOCKS_PER_SEC;
-    double two_img_time = double(two_img - one_img) / CLOCKS_PER_SEC;
-    double matcher_time = double(matcher - two_img) / CLOCKS_PER_SEC;
-    double elapsed = one_img_time + two_img_time + matcher_time;
-    std::cout<<"Time for first image ORB: " << one_img_time << " seconds." << std::endl;
-    std::cout<<"Time for second image ORB: " << two_img_time << " seconds." << std::endl;
-    std::cout<<"Time for matching descriptors: " << matcher_time << " seconds." << std::endl;
-    std::cout << "Spent time: " << elapsed << " seconds." << std::endl;
 
     cv::waitKey(0);
     return 0;
