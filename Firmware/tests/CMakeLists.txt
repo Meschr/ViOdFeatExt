@@ -13,7 +13,7 @@ add_executable(test_full_capture ${CMAKE_CURRENT_SOURCE_DIR}/capture_test.cpp)
 add_executable(test_webcamMT ${CMAKE_CURRENT_SOURCE_DIR}/webcamMultiThreadedTest.cpp)
 add_executable(test_stereocamMT ${CMAKE_CURRENT_SOURCE_DIR}/stereoCamMultiThreadedTest.cpp)
 add_executable(test_sift_time ${CMAKE_CURRENT_SOURCE_DIR}/sift_time_test.cpp)
-
+add_executable(test_fast_time ${CMAKE_CURRENT_SOURCE_DIR}/fast_time_test.cpp)
 
 
 # Ensure headers are findable
