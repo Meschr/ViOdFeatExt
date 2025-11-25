@@ -64,7 +64,7 @@ target_include_directories(test_depth PRIVATE
 ${CMAKE_SOURCE_DIR}/../DataProcessing
 )
 
-fixing opencv to work for me
+# fixing opencv to work for me
 target_include_directories(test_sift_time PRIVATE 
   ${OpenCV_INCLUDE_DIRS}
 )
