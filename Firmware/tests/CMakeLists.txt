@@ -82,8 +82,8 @@ target_link_libraries(test_stereocamMT PRIVATE i2c icm20948 captureDevice Thread
 target_link_libraries(checkboard_calibration PRIVATE dataProcessing)
 target_link_libraries(approx_calibration PRIVATE dataProcessing)
 target_link_libraries(test_depth PRIVATE dataProcessing)
-target_link_libraries(test_sift_time PRIVATE ${OpenCV_LIBS})
-target_link_libraries(test_fast_time PRIVATE ${OpenCV_LIBS})
+target_link_libraries(test_sift_time PRIVATE ${OpenCV_LIBS} dataProcessing)
+target_link_libraries(test_fast_time PRIVATE ${OpenCV_LIBS} dataProcessing)
 
 # Optionally set C++ standard
 target_compile_features(test_imu PRIVATE cxx_std_11)
