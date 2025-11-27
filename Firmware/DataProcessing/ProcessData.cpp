@@ -106,3 +106,59 @@ std::vector<cv::Point3f> stereo_3Dpoints(const cv::Mat &P1,
 
   return points3D;
 }
+
+std::vector<Landmark> stereo_landmarks(const cv::Mat &P1,
+                                       const cv::Mat &P2,
+                                       const std::vector<cv::KeyPoint> &keypoints1,
+                                       const std::vector<cv::KeyPoint> &keypoints2,
+                                       const cv::Mat &descriptors1,
+                                       const cv::Mat &descriptors2,
+                                       const std::vector<cv::DMatch> &matches)
+{
+  std::vector<Landmark> landmarks;
+  std::vector<cv::Point2f> pts1, pts2;
+  cv::Mat points4D;
+
+  if (matches.empty() ||
+      keypoints1.empty() ||
+      keypoints2.empty() ||
+      descriptors1.empty() ||
+      descriptors2.empty())
+    return landmarks;
+
+  pts1.reserve(matches.size());
+  pts2.reserve(matches.size());
+
+  for (const auto &m : matches)
+  {
+    pts1.push_back(keypoints1[m.queryIdx].pt);
+    pts2.push_back(keypoints2[m.trainIdx].pt);
+  }
+
+  cv::triangulatePoints(P1, P2, pts1, pts2, points4D);
+
+  landmarks.reserve(points4D.cols);
+
+  for (int i = 0; i < points4D.cols; ++i)
+  {
+    // Dehomogenize (assuming float; change to double if P1/P2 are CV_64F)
+    float X = points4D.at<float>(0, i) / points4D.at<float>(3, i);
+    float Y = points4D.at<float>(1, i) / points4D.at<float>(3, i);
+    float Z = points4D.at<float>(2, i) / points4D.at<float>(3, i);
+
+    const cv::DMatch &m = matches[i];
+
+    // Choose descriptor from the keypoint with higher response
+    const cv::KeyPoint &kp1 = keypoints1[m.queryIdx];
+    const cv::KeyPoint &kp2 = keypoints2[m.trainIdx];
+
+    cv::Mat chosenDesc = (kp1.response >= kp2.response) ? descriptors1.row(m.queryIdx) : descriptors2.row(m.trainIdx);
+
+    Landmark lm = {.position = cv::Point3f(X, Y, Z),
+                   .descriptor = chosenDesc.clone()};
+
+    landmarks.push_back(std::move(lm));
+  }
+
+  return landmarks;
+}

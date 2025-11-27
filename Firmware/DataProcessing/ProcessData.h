@@ -1,9 +1,9 @@
 #include <opencv2/opencv.hpp>
 
-struct StereoLandmark
+struct Landmark
 {
-  cv::Point3f position;
-  cv::Mat descriptor;
+    cv::Point3f position;   
+    cv::Mat     descriptor; 
 };
 
 std::vector<cv::KeyPoint> single_FAST(const cv::Mat &img);
@@ -24,3 +24,11 @@ std::vector<cv::Point3f> stereo_3Dpoints(const cv::Mat &P1,
                                          const std::vector<cv::KeyPoint> &keypoints1,
                                          const std::vector<cv::KeyPoint> &keypoints2,
                                          const std::vector<cv::DMatch> &matches);
+
+std::vector<Landmark> stereo_landmarks(const cv::Mat &P1,
+                                       const cv::Mat &P2,
+                                       const std::vector<cv::KeyPoint> &keypoints1,
+                                       const std::vector<cv::KeyPoint> &keypoints2,
+                                       const cv::Mat &descriptors1,
+                                       const cv::Mat &descriptors2,
+                                       const std::vector<cv::DMatch> &matches);

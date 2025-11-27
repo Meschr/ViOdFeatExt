@@ -41,13 +41,15 @@ int main(int argc, char** argv) {
     auto [keypoints1, descriptors1] = single_ORB(imgL);
     auto [keypoints2, descriptors2] = single_ORB(imgR);
 
-    auto matches = descriptor_matcher(descriptors1, descriptors2);
-    auto points =  stereo_3Dpoints(P1, P2, keypoints1, keypoints2, matches);
+    auto matches = descriptor_matcher(descriptors1, descriptors2, 0.65);
+    // auto points =  stereo_3Dpoints(P1, P2, keypoints1, keypoints2, matches);
+    auto landmarks = stereo_landmarks(P1, P2, keypoints1, keypoints2, descriptors1, descriptors2, matches);
+
 
     // Show data
     draw_and_show(imgL, imgR, keypoints1, keypoints2, matches);
-    for (const cv::Point3f& p : points) {
-      std::cout << p.z << std::endl;
+    for (const auto& lm : landmarks) {
+      std::cout << lm.position.z << std::endl;
     }
     cv::waitKey(0);
   }
