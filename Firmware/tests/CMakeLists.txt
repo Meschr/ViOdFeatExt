@@ -51,25 +51,28 @@ target_include_directories(test_stereocamMT PRIVATE
 
 # Ensure headers are findable
 target_include_directories(checkboard_calibration PRIVATE
-${CMAKE_SOURCE_DIR}/../DataProcessing
+  {CMAKE_SOURCE_DIR}/../DataProcessing
 )
 
 # Ensure headers are findable
 target_include_directories(approx_calibration PRIVATE
-${CMAKE_SOURCE_DIR}/../DataProcessing
+  {CMAKE_SOURCE_DIR}/../DataProcessing
 )
 
 # Ensure headers are findable
 target_include_directories(test_depth PRIVATE
-${CMAKE_SOURCE_DIR}/../DataProcessing
+  {CMAKE_SOURCE_DIR}/../Capture
+  {CMAKE_SOURCE_DIR}/../DataProcessing
 )
 
 # fixing opencv to work for me
 target_include_directories(test_sift_time PRIVATE 
-  ${OpenCV_INCLUDE_DIRS}
+  {CMAKE_SOURCE_DIR}/../DataProcessing
+  {OpenCV_INCLUDE_DIRS}
 )
 target_include_directories(test_fast_time PRIVATE 
-${OpenCV_INCLUDE_DIRS}
+  {CMAKE_SOURCE_DIR}/../DataProcessing
+  {OpenCV_INCLUDE_DIRS}
 )
 
 
@@ -81,7 +84,7 @@ target_link_libraries(test_webcamMT PRIVATE captureDevice Threads::Threads)
 target_link_libraries(test_stereocamMT PRIVATE i2c icm20948 captureDevice Threads::Threads)
 target_link_libraries(checkboard_calibration PRIVATE dataProcessing)
 target_link_libraries(approx_calibration PRIVATE dataProcessing)
-target_link_libraries(test_depth PRIVATE dataProcessing)
+target_link_libraries(test_depth PRIVATE captureDevice dataProcessing)
 target_link_libraries(test_sift_time PRIVATE ${OpenCV_LIBS} dataProcessing)
 target_link_libraries(test_fast_time PRIVATE ${OpenCV_LIBS} dataProcessing)
 

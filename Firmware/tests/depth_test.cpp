@@ -1,28 +1,57 @@
+#include "CaptureDevice.h"
 #include "Calibration.h"
+#include "ProcessData.h"
 
 int main(int argc, char** argv) {
-    std::string filename = "stereoCalibration.yml";
-    cv::Size imageSize = cv::Size(640, 480);
-    cv::Mat K1; cv::Mat K2;
-    cv::Mat D1; cv::Mat D2;
-    cv::Mat P1; cv::Mat P2;
-    cv::Mat R;
-    cv::Mat T;
+  /**Stereo camera device implementation*/
+  CaptureDevice camDev;
 
-    if (argc > 1) 
-        filename = argv[1];
+  std::string filename = "stereoCalibration.yml";
+  cv::Size imageSize = cv::Size(640, 480);
+  cv::Mat K1, K2;
+  cv::Mat D1, D2;
+  cv::Mat P1, P2;
+  cv::Mat R, T;
 
-    loadStereoCalibration(filename, imageSize, K1, D1, P1, K2, D2, P2, R, T);
+  cv::Mat imgL, imgR;
 
-    std::cout << "K1:\n" << K1 << "\n"
-              << "D1:\n" << D1 << "\n"
-              << "P1:\n" << P1 << "\n"
-              << "K2:\n" << K2 << "\n"
-              << "D2:\n" << D2 << "\n"
-              << "P2:\n" << P2 << "\n"
-              << "R: \n" << R  << "\n"
-              << "T: \n" << T  << "\n"
-              << std::endl;
-    // TODO: Implement depth stimation
-    return 0;
+  if (argc > 1) 
+    filename = argv[1];
+
+  loadStereoCalibration(filename, imageSize, K1, D1, P1, K2, D2, P2, R, T);
+  
+  try {
+    camDev.Init();
+  } catch (const std::exception &e) {
+    std::cerr << e.what() << '\n';
+    return 1;
+  }
+
+  for (;;) {
+    // Get data
+    try {
+      imgL = camDev.GetLeftImage();
+      imgR = camDev.GetRightImage();
+    } catch (const std::exception &e) {
+      std::cout << e.what() << std::endl;
+      continue;
+    }
+
+    // Process data
+    auto [keypoints1, descriptors1] = single_ORB(imgL);
+    auto [keypoints2, descriptors2] = single_ORB(imgR);
+
+    auto matches = descriptor_matcher(descriptors1, descriptors2);
+    auto points =  stereo_3Dpoints(P1, P2, keypoints1, keypoints2, matches);
+
+    // Show data
+    draw_and_show(imgL, imgR, keypoints1, keypoints2, matches);
+    for (const cv::Point3f& p : points) {
+      std::cout << p.z << std::endl;
+    }
+    cv::waitKey(0);
+  }
+  
+
+  return 0;
 }

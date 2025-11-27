@@ -1,6 +1,6 @@
 #!/bin/bash 
 
-cd ./build/
+cd ~/Software/ViOdFeatExt/Firmware/build/
 
 cmake -DOpenCV_DIR=/usr/local/lib/cmake/opencv4 ..
 
