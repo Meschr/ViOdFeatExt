@@ -41,15 +41,16 @@ int main(int argc, char** argv) {
     auto [keypoints1, descriptors1] = single_ORB(imgL);
     auto [keypoints2, descriptors2] = single_ORB(imgR);
 
-    auto matches = descriptor_matcher(descriptors1, descriptors2, 0.65);
+    auto matches = descriptor_matcher(descriptors1, descriptors2, 0.6);
     // auto points =  stereo_3Dpoints(P1, P2, keypoints1, keypoints2, matches);
     auto landmarks = stereo_landmarks(P1, P2, keypoints1, keypoints2, descriptors1, descriptors2, matches);
 
+    //  TODO: Understand why are the values negative (the imaes may be in reverse in input?)
 
     // Show data
     draw_and_show(imgL, imgR, keypoints1, keypoints2, matches);
     for (const auto& lm : landmarks) {
-      std::cout << lm.position.z << std::endl;
+      std::cout << lm.position << std::endl;
     }
     cv::waitKey(0);
   }

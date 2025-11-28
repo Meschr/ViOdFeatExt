@@ -189,7 +189,7 @@ void extrinsicApproximation(const float baseline,
     cv::Mat Rt2; 
 
     // Transformation from left camera to right camera
-    R = cv::Mat::eye(3,3, CV_64F);
+    R = cv::Mat::diag((cv::Mat_<double>(1, 3) << -1.0, -1.0, 1.0));
     T = (cv::Mat_<double>(3,1) << baseline, 0.0, 0.0); 
 
     cv::hconcat(cv::Mat::eye(3,3,CV_64F), cv::Mat::zeros(3,1,CV_64F), Rt1);

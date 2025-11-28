@@ -90,7 +90,11 @@ std::vector<cv::Point3f> stereo_3Dpoints(const cv::Mat &P1,
     pts2.push_back(keypoints2[m.trainIdx].pt);
   }
 
-  cv::triangulatePoints(P1, P2, pts1, pts2, points4D);
+  cv::Mat P1f, P2f;
+  P1.convertTo(P1f, CV_32F);
+  P2.convertTo(P2f, CV_32F);
+
+  cv::triangulatePoints(P1f, P2f, pts1, pts2, points4D);
 
   points3D.reserve(points4D.cols);
 
@@ -101,6 +105,9 @@ std::vector<cv::Point3f> stereo_3Dpoints(const cv::Mat &P1,
     float Y = col.at<float>(1) / col.at<float>(3);
     float Z = col.at<float>(2) / col.at<float>(3); // <-- depth from left camera
 
+    if (!std::isfinite(Z) || Z <= 0.0f)
+      continue;
+      
     points3D.emplace_back(X, Y, Z);
   }
 
@@ -126,6 +133,7 @@ std::vector<Landmark> stereo_landmarks(const cv::Mat &P1,
       descriptors2.empty())
     return landmarks;
 
+
   pts1.reserve(matches.size());
   pts2.reserve(matches.size());
 
@@ -135,7 +143,11 @@ std::vector<Landmark> stereo_landmarks(const cv::Mat &P1,
     pts2.push_back(keypoints2[m.trainIdx].pt);
   }
 
-  cv::triangulatePoints(P1, P2, pts1, pts2, points4D);
+  cv::Mat P1f, P2f;
+  P1.convertTo(P1f, CV_32F);
+  P2.convertTo(P2f, CV_32F);
+
+  cv::triangulatePoints(P1f, P2f, pts1, pts2, points4D);
 
   landmarks.reserve(points4D.cols);
 
@@ -145,6 +157,9 @@ std::vector<Landmark> stereo_landmarks(const cv::Mat &P1,
     float X = points4D.at<float>(0, i) / points4D.at<float>(3, i);
     float Y = points4D.at<float>(1, i) / points4D.at<float>(3, i);
     float Z = points4D.at<float>(2, i) / points4D.at<float>(3, i);
+
+    if (!std::isfinite(Z) || Z <= 0.0f)
+      continue;
 
     const cv::DMatch &m = matches[i];
 

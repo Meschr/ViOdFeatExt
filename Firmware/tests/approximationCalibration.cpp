@@ -13,7 +13,7 @@ int main(int argc, char** argv) {
         filename = argv[1];
 
     intrinsicAproximation(2.6, 73.0, 50.0, imageSize, K1, D1, K2, D2);
-    extrinsicApproximation(0.6, K1, K2, P1, P2, R, T);
+    extrinsicApproximation(0.06, K1, K2, P1, P2, R, T);
     
 
     std::cout << "K1:\n" << K1 << "\nD1:\n" << D1 << "\nK2:\n" << K2 << "\nD2:\n" << D2 << std::endl;
