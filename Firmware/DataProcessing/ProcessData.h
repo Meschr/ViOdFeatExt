@@ -4,6 +4,8 @@ struct Landmark
 {
     cv::Point3f position;   
     cv::Mat     descriptor; 
+    std::string         id; 
+    cv::KeyPoint keypoint;        
 };
 
 std::vector<cv::KeyPoint> single_FAST(const cv::Mat &img);
@@ -17,7 +19,17 @@ void draw_and_show(const cv::Mat &imgL,
                    const cv::Mat &imgR,
                    const std::vector<cv::KeyPoint> &keypoints1,
                    const std::vector<cv::KeyPoint> &keypoints2,
-                   const std::vector<cv::DMatch> &matches);
+                   const std::vector<cv::DMatch> &matches,
+                   const std::vector<Landmark> &landmarks);
+
+void draw_landmark_kyp(const cv::Mat &img,
+                       const std::vector<Landmark> &landmarks);
+
+std::vector<Landmark> path_to_landmark(
+        const std::string &leftPath,
+        const std::string &rightPath,
+        const cv::Mat &P1,
+        const cv::Mat &P2);
 
 std::vector<cv::Point3f> stereo_3Dpoints(const cv::Mat &P1,
                                          const cv::Mat &P2,
