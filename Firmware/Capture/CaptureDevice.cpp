@@ -6,7 +6,7 @@ void CaptureDevice::Init() {
       "nvarguscamerasrc sensor-id=0 ! video/x-raw(memory:NVMM), width=640, "
       "height=480, format=(string)NV12, framerate=(fraction)20/1 ! nvvidconv "
       "flip-method=2 ! video/x-raw, width=640, height=480, format=(string)BGRx "
-      "! videoconvert ! video/x-raw, format=(string)BGR ! appsink",
+      "! videoconvert ! video/x-raw, format=(string)BGR ! appsink max-buffers=1 drop=True",
       cv::CAP_GSTREAMER);
 
   if (!mLeftCam.isOpened()) {
@@ -18,7 +18,7 @@ void CaptureDevice::Init() {
       "nvarguscamerasrc sensor-id=1 ! video/x-raw(memory:NVMM), width=640, "
       "height=480, format=(string)NV12, framerate=(fraction)20/1 ! nvvidconv "
       "flip-method=2 ! video/x-raw, width=640, height=480, format=(string)BGRx "
-      "! videoconvert ! video/x-raw, format=(string)BGR ! appsink",
+      "! videoconvert ! video/x-raw, format=(string)BGR ! appsink max-buffers=1 drop=True",
       cv::CAP_GSTREAMER);
   if (!mRightCam.isOpened()) {
     throw std::runtime_error("Error: Could not open right camera.");

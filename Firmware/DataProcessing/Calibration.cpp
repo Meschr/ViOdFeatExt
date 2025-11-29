@@ -6,10 +6,12 @@ void checkBoardCalibration(const cv::Size boardSize,
                            const double squareSize, 
                            const std::vector<std::string>& leftFiles, 
                            const std::vector<std::string>& rightFiles, 
-                           cv::Mat& K1, 
-                           cv::Mat& D1, 
-                           cv::Mat& K2, 
-                           cv::Mat& D2, 
+                           cv::Mat& K1, cv::Mat& D1, 
+                           cv::Mat& K2, cv::Mat& D2, 
+                           cv::Mat& R1, cv::Mat& R2, 
+                           cv::Mat& P1, cv::Mat& P2, 
+                           cv::Mat& Q, cv::Mat& R, cv::Mat& T,
+                           cv::Size& imageSize,
                            int flags) {
     // --- storage for calibration ---
     std::vector<std::vector<cv::Point3f>> objectPoints; 
@@ -27,7 +29,6 @@ void checkBoardCalibration(const cv::Size boardSize,
         }
     }
 
-    cv::Size imageSize;
     for (size_t i = 0; i < leftFiles.size(); ++i) {
         // std::cout << leftFiles[i] << ", " << rightFiles[i] << "\n";
         cv::Mat left = cv::imread(leftFiles[i], cv::IMREAD_GRAYSCALE);
@@ -71,7 +72,7 @@ void checkBoardCalibration(const cv::Size boardSize,
     }
 
     // --- stereo calibration ---
-    cv::Mat R, T, E, F;
+    cv::Mat E, F;
 
     cv::TermCriteria criteria(cv::TermCriteria::COUNT + cv::TermCriteria::EPS, 100, 1e-6);
 
@@ -82,6 +83,14 @@ void checkBoardCalibration(const cv::Size boardSize,
 
     std::cout << "Stereo calibration RMS error = " << rms << std::endl;
     std::cout << "K1:\n" << K1 << "\nD1:\n" << D1 << "\nK2:\n" << K2 << "\nD2:\n" << D2 << std::endl;
+
+    double baseline = cv::norm(T);
+    std::cout << "Baseline (meters): " << baseline << std::endl;
+
+    // --- rectify and get projection matrices and Q ---
+    cv::stereoRectify(K1, D1, K2, D2, imageSize, R, T, R1, R2, P1, P2, Q);
+
+    std::cout << "P1:\n" << P1 << "\nP2:\n" << P2 << "\nQ:\n" << Q << std::endl;
 }
 
 void saveStereoCalibration(const std::string& filename,
@@ -93,7 +102,8 @@ void saveStereoCalibration(const std::string& filename,
                            const cv::Mat& D2,
                            const cv::Mat& P2,
                            const cv::Mat& R,  
-                           const cv::Mat& T) {
+                           const cv::Mat& T,
+                           const cv::Mat& Q) {
     cv::FileStorage fs(filename, cv::FileStorage::WRITE);
     if (!fs.isOpened()) {
         std::cerr << "Could not open file " << filename << " for writing\n";
@@ -111,6 +121,7 @@ void saveStereoCalibration(const std::string& filename,
     fs << "P2" << P2;
     fs << "R"  << R;
     fs << "T"  << T;
+    fs << "Q"  << Q;
 
     fs.release();
 }
@@ -124,7 +135,8 @@ void loadStereoCalibration(const std::string& filename,
                            cv::Mat& D2,
                            cv::Mat& P2,
                            cv::Mat& R,  
-                           cv::Mat& T) {
+                           cv::Mat& T,
+                           cv::Mat& Q) {
     cv::FileStorage fs(filename, cv::FileStorage::READ);
     if (!fs.isOpened()) {
         std::cerr << "Could not open file " << filename << " for reading\n";
@@ -144,6 +156,7 @@ void loadStereoCalibration(const std::string& filename,
     fs["P2"] >> P2;
     fs["R"]  >> R;
     fs["T"]  >> T;
+    fs["Q"]  >> Q;
 
     fs.release();
 }
@@ -189,8 +202,8 @@ void extrinsicApproximation(const float baseline,
     cv::Mat Rt2; 
 
     // Transformation from left camera to right camera
-    R = cv::Mat::diag((cv::Mat_<double>(1, 3) << -1.0, -1.0, 1.0));
-    T = (cv::Mat_<double>(3,1) << baseline, 0.0, 0.0); 
+    R = cv::Mat::eye(3, 3, CV_64F);
+    T = (cv::Mat_<double>(3,1) << -baseline, 0.0, 0.0);
 
     cv::hconcat(cv::Mat::eye(3,3,CV_64F), cv::Mat::zeros(3,1,CV_64F), Rt1);
     cv::hconcat(R, T, Rt2);

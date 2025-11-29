@@ -57,21 +57,30 @@ int main(int argc, char** argv) {
 
     std::string dir = argv[1];
 
-    std::vector<std::string> leftFiles  = readCSVColumn(dir, "data.csv", "left_image" , 5);
-    std::vector<std::string> rightFiles = readCSVColumn(dir, "data.csv", "right_image", 5);
+    std::vector<std::string> leftFiles  = readCSVColumn(dir, "data.csv", "left_image" , 1);
+    std::vector<std::string> rightFiles = readCSVColumn(dir, "data.csv", "right_image", 1);
+
+    if (0 == leftFiles.size() || 0== rightFiles.size())
+      return 1;
 
     std::cout << "Left images: "  << std::to_string(leftFiles.size())  << "\n";
     std::cout << "Right images: " << std::to_string(rightFiles.size()) << "\n";
 
     
-    cv::Mat K1 = cv::Mat::eye(3,3,CV_64F), D1 = cv::Mat::zeros(1,5,CV_64F);
-    cv::Mat K2 = cv::Mat::eye(3,3,CV_64F), D2 = cv::Mat::zeros(1,5,CV_64F);
+    cv::Mat K1, D1, K2, D2, R1, R2, P1, P2, Q, R, T;
+    cv::Size imageSize;
     checkBoardCalibration(cv::Size(10, 7),
                           0.025, 
                           leftFiles,
                           rightFiles,
                           K1, D1,
-                          K2, D2);
+                          K2, D2,
+                          R1, R2,
+                          P1, P2, 
+                          Q, R, T,
+                          imageSize);
+
+    saveStereoCalibration(argv[2], imageSize, K1, D1, P1, K2, D2, P2, R, T, Q);
 
     return 0;
 }

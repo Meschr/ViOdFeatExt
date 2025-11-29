@@ -52,7 +52,7 @@ int main(int argc, char **argv) {
   cv::Mat left, right;
 
   /** Data storage handler*/
-  DataStorageHandler dH;
+  DataStorageHandler dH("../LogData/");
 
   /* Parse any inputs that may have been provided. */
   for (int i = 1; i < static_cast<ulong>(argc); ++i) {
@@ -106,21 +106,17 @@ int main(int argc, char **argv) {
     std::string leftName = dH.SaveImage(left, "left");
     std::string rightName = dH.SaveImage(right, "right");
 
+    std::cout << i << std::endl;
+
     dH.SaveData(0, 0, data->mAcc[0], data->mAcc[1], data->mAcc[2],
                 data->mGyro[0], data->mGyro[1], data->mGyro[2], data->mMag[0],
                 data->mMag[1], data->mMag[2], leftName, rightName);
 
-    /* Calculate sleep time by taking expected period between IMU updates and
-     * reducing it by a time needed to process data. */
-    sleepTime =
-        static_cast<int>(((period) - (getTime() - currentTime)) * 1000000.0);
-    /* We use signed type in case processing takes more than expected period
-     * between updates. */
-    if (sleepTime > 0)
-      usleep(static_cast<uint>(sleepTime));
-    else
-      std::cerr << "WARNING: Unable to keep configured period by "
-                << std::to_string(sleepTime / 1000000.0) << '\n';
+    std::cout << i << std::endl;
+
+    imshow("imageL", left);
+    imshow("imageR", right);
+    cv::waitKey(0);
   }
 
   return 0;

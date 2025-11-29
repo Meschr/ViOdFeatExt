@@ -5,10 +5,12 @@ void checkBoardCalibration(const cv::Size boardSize,
                            const double squareSize, 
                            const std::vector<std::string>& leftFiles, 
                            const std::vector<std::string>& rightFiles, 
-                           cv::Mat& K1, 
-                           cv::Mat& D1, 
-                           cv::Mat& K2, 
-                           cv::Mat& D2, 
+                           cv::Mat& K1, cv::Mat& D1, 
+                           cv::Mat& K2, cv::Mat& D2, 
+                           cv::Mat& R1, cv::Mat& R2, 
+                           cv::Mat& P1, cv::Mat& P2, 
+                           cv::Mat& Q, cv::Mat& R, cv::Mat& T,
+                           cv::Size& imageSize,
                            int flags=0);
 
 void saveStereoCalibration(const std::string& filename,
@@ -20,7 +22,8 @@ void saveStereoCalibration(const std::string& filename,
                            const cv::Mat& D2,
                            const cv::Mat& P2,
                            const cv::Mat& R,  
-                           const cv::Mat& T);
+                           const cv::Mat& T,
+                           const cv::Mat& Q);
 
 void loadStereoCalibration(const std::string& filename,
                            cv::Size& imageSize,
@@ -31,7 +34,8 @@ void loadStereoCalibration(const std::string& filename,
                            cv::Mat& D2,
                            cv::Mat& P2,
                            cv::Mat& R,  
-                           cv::Mat& T);
+                           cv::Mat& T,
+                           cv::Mat& Q);
 
 void intrinsicAproximation(const double focalLength, 
                            const double horizontalFoV, 
