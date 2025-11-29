@@ -16,3 +16,7 @@
 
 - 5th test run:
   rotation by 90 degres with angular speed 15 deg/s from the terrain towards the room
+
+# Structure
+
+Relative paths to this directory with the 5 measurement directory. Copy the measurements here ! They wont get pushed.

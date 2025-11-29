@@ -100,9 +100,11 @@ Notes and tips:
 - Use `man i2cdetect` or `i2c-tools` documentation for more options and details.
 
 ## Static ethernet IP address
+
 ip adress: 192.168.55.2
 
 # Known bugs
+
 ## Threaded capture not releasing the video input
 
 ```
@@ -111,7 +113,22 @@ GStreamer-CRITICAL **: 18:26:25.319: gst_mini_object_set_qdata: assertion 'objec
 ```
 
 Solution:
+
 ```sh
 sudo systemctl restart nvargus-daemon
 ```
 
+Linux: to visualize point cloud data we need submodule viz
+clone this repo: https://github.com/opencv/opencv_contrib
+
+- install VTK and other tooling:
+
+`sudo apt install -y build-essential cmake git libgtk2.0-dev libvtk7-dev pkg-config     libjpeg-dev ibpng-dev libtiff-dev libdc1394-dev libeigen3-dev libopenblas-dev     liblapack-dev libopenexr-dev libtbb-dev`
+
+- move to build directory in your opencv source:
+
+` make -D CMAKE_BUILD_TYPE=Release -D OPENCV_EXTRA_MODULES_PATH=/home/mescher/Software/opencv_contrib/modules -D BUILD_LIST=viz,core,highgui,imgproc,imgcodecs,videoio,features2d,calib3d /home/mescher/Software/opencv-4.x`
+
+`make -j5`
+
+`sudo make install`

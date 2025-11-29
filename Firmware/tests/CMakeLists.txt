@@ -2,9 +2,6 @@ cmake_minimum_required(VERSION 3.10)
 project(firmware_tests_examples LANGUAGES C CXX)
 
 find_package(Threads REQUIRED)
-# trying to get opecv to work
-find_package(OpenCV REQUIRED)
-
 
 # Build only test_imu explicitly:
 add_executable(test_imu ${CMAKE_CURRENT_SOURCE_DIR}/imu_test.cpp)
