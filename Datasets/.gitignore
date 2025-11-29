@@ -1,0 +1,8 @@
+# Ignore all folders starting with "2025-11-18"
+2025-11-18_*
+
+# Keep README.md
+!README.md
+
+# Keep RoboticArmMovements folder
+!RoboticArmMovements_251118/
