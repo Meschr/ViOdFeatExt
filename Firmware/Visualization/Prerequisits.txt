@@ -1,0 +1,11 @@
+Linux: to visualize point cloud data we need submodule viz
+clone this repo: https://github.com/opencv/opencv_contrib
+
+> install VTK and other tooling
+sudo apt install -y build-essential cmake git libgtk2.0-dev libvtk7-dev pkg-config     libjpeg-dev libpng-dev libtiff-dev libdc1394-dev libeigen3-dev libopenblas-dev     liblapack-dev libopenexr-dev libtbb-dev
+
+> move to build directory of your opencv version
+
+cmake -D CMAKE_BUILD_TYPE=Release       -D OPENCV_EXTRA_MODULES_PATH=/home/mescher/Software/opencv_contrib/modules       -D BUILD_LIST=viz,core,highgui,imgproc,imgcodecs,videoio,features2d,calib3d       /home/mescher/Software/opencv-4.x
+make -j5
+sudo make install
