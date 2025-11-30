@@ -14,7 +14,6 @@ add_executable(test_stereocamMT ${CMAKE_CURRENT_SOURCE_DIR}/stereoCamMultiThread
 add_executable(checkboard_calibration ${CMAKE_CURRENT_SOURCE_DIR}/checkboard_calibration.cpp)
 # add_executable(approx_calibration ${CMAKE_CURRENT_SOURCE_DIR}/approximationCalibration.cpp)
 add_executable(test_depth ${CMAKE_CURRENT_SOURCE_DIR}/depth_test.cpp)
-# add_executable(test_depth2 ${CMAKE_CURRENT_SOURCE_DIR}/depth_test2.cpp)
 add_executable(test_sift_time ${CMAKE_CURRENT_SOURCE_DIR}/sift_time_test.cpp)
 add_executable(test_fast_time ${CMAKE_CURRENT_SOURCE_DIR}/fast_test.cpp)
 
