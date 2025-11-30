@@ -67,20 +67,10 @@ int main(int argc, char** argv) {
     std::cout << "Right images: " << std::to_string(rightFiles.size()) << "\n";
 
     
-    cv::Mat K1, D1, K2, D2, R1, R2, P1, P2, Q, R, T;
-    cv::Size imageSize;
-    checkBoardCalibration(cv::Size(10, 7),
-                          0.025, 
-                          leftFiles,
-                          rightFiles,
-                          K1, D1,
-                          K2, D2,
-                          R1, R2,
-                          P1, P2, 
-                          Q, R, T,
-                          imageSize);
+    Calibration calib;
+    calib.checkBoardCalibration(cv::Size(10, 7), 0.025, leftFiles, rightFiles);
 
-    saveStereoCalibration(argv[2], imageSize, K1, D1, P1, K2, D2, P2, R, T, Q);
+    calib.saveStereoCalibration(argv[2]);
 
     return 0;
 }

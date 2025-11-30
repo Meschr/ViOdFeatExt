@@ -13,6 +13,14 @@ std::pair<std::vector<cv::KeyPoint>, cv::Mat> single_SIFT(const cv::Mat &img);
 std::vector<cv::DMatch> descriptor_matcher(const cv::Mat &descriptors1,
                                            const cv::Mat &descriptors2,
                                            const float thresh = 0.5f);
+
+std::vector<cv::DMatch> descriptor_matcher(const cv::Mat &descriptors1, 
+                                           const std::vector<cv::KeyPoint> &keypoints1,
+                                           const cv::Mat &descriptors2, 
+                                           const std::vector<cv::KeyPoint> &keypoints2,
+                                           const float thresh,
+                                           const float maxSlope);
+                                           
 void draw_and_show(const cv::Mat &imgL,
                    const cv::Mat &imgR,
                    const std::vector<cv::KeyPoint> &keypoints1,

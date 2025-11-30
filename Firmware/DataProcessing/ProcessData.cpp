@@ -54,6 +54,65 @@ std::vector<cv::DMatch> descriptor_matcher(const cv::Mat &descriptors1, const cv
   return good_matches;
 }
 
+// Bad results correct functionality may be debbu
+std::vector<cv::DMatch> descriptor_matcher2(const cv::Mat &descriptors1, 
+                                           const std::vector<cv::KeyPoint> &keypoints1,
+                                           const cv::Mat &descriptors2, 
+                                           const std::vector<cv::KeyPoint> &keypoints2,
+                                           const float thresh,
+                                           const float maxSlope)
+{
+  cv::BFMatcher matcher(cv::NORM_HAMMING);
+  std::vector<std::vector<cv::DMatch>> knnMatches;
+  std::vector<cv::DMatch> good_matches;
+  float peakSlope = 0.0;
+
+  if (descriptors1.empty() || descriptors2.empty() ||
+      keypoints1.empty()   || keypoints2.empty())
+    return good_matches;
+
+  matcher.knnMatch(descriptors1, descriptors2, knnMatches, 2);
+
+  for (const auto &mVec : knnMatches)
+  {
+    // Need at least 2 neighbors for ratio test
+    if (mVec.size() < 2)
+      continue;
+
+    const cv::DMatch &best  = mVec[0];
+    const cv::DMatch &second = mVec[1];
+
+    // 1) Lowe's ratio test
+    if (best.distance >= thresh * second.distance)
+      continue;
+
+    // 2) Direction / slope filtering
+    const cv::Point2f &p1 = keypoints1[best.queryIdx].pt;
+    const cv::Point2f &p2 = keypoints2[best.trainIdx].pt;
+
+    cv::Point2f dir = p2 - p1;
+    float n = cv::norm(dir);
+    if (n == 0.0f)
+      continue;
+
+    cv::Point2f unit_dir = dir * (1.0f / n);
+
+    // For rectified stereo: direction should be mostly horizontal.
+    // unit_dir.y is the vertical component of the unit vector.
+    if (std::abs(unit_dir.y) > maxSlope)
+      continue;
+
+    if (peakSlope < std::abs(unit_dir.y))
+      peakSlope = std::abs(unit_dir.y);
+    // Passed both filters
+    good_matches.push_back(best);
+  }
+
+  std::cout << peakSlope << std::endl;
+  
+  return good_matches;
+}
+
 void draw_and_show(const cv::Mat &imgL,
                    const cv::Mat &imgR,
                    const std::vector<cv::KeyPoint> &keypoints1,
@@ -65,7 +124,7 @@ void draw_and_show(const cv::Mat &imgL,
 
   cv::Mat small_matches;
   cv::resize(img_matches, small_matches, cv::Size(), 1.5, 1.5);
-  cv::imshow("ORB Feature Match", small_matches);
+  cv::imshow("Feature Match", small_matches);
 }
 
 std::vector<cv::Point3f> stereo_3Dpoints(const cv::Mat &P1,
