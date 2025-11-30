@@ -224,9 +224,6 @@ std::vector<Landmark> path_to_landmark(
     return stereo_landmarks(P1, P2, kpsL, kpsR, dL, dR, stereoMatches);
 }
 
-
-
-
 std::vector<Landmark> stereo_landmarks(const cv::Mat &P1,
                                        const cv::Mat &P2,
                                        const std::vector<cv::KeyPoint> &keypoints1,
@@ -296,4 +293,14 @@ std::vector<Landmark> stereo_landmarks(const cv::Mat &P1,
   }
 
   return landmarks;
+}
+
+std::vector<Landmark> stereo_landmarks(const Calibration &calib,
+                                       const std::vector<cv::KeyPoint> &keypoints1,
+                                       const std::vector<cv::KeyPoint> &keypoints2,
+                                       const cv::Mat &descriptors1,
+                                       const cv::Mat &descriptors2,
+                                       const std::vector<cv::DMatch> &matches)
+{
+  return stereo_landmarks(calib.P1, calib.P2, keypoints1, keypoints2, descriptors1, descriptors2, matches);
 }

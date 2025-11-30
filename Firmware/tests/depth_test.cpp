@@ -17,16 +17,8 @@ int main(int argc, char **argv)
 
   calib.loadStereoCalibration(filename);
 
-  try
-  {
-    camDev.Init();
-  }
-  catch (const std::exception &e)
-  {
-    std::cerr << e.what() << '\n';
-    return 1;
-  }
-
+  camDev.Init();
+  
   for (;;)
   {
     // Get data
@@ -50,7 +42,7 @@ int main(int argc, char **argv)
 
     auto matches = descriptor_matcher(descriptors1, descriptors2, 0.6);
     // auto points =  stereo_3Dpoints(P1, P2, keypoints1, keypoints2, matches);
-    auto landmarks = stereo_landmarks(calib.P1, calib.P2, keypoints1, keypoints2, descriptors1, descriptors2, matches);
+    auto landmarks = stereo_landmarks(calib, keypoints1, keypoints2, descriptors1, descriptors2, matches);
 
     // Show data
     draw_and_show(imgL, imgR, keypoints1, keypoints2, matches);
