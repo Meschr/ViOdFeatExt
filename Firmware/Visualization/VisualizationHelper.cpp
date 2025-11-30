@@ -1,6 +1,8 @@
 #include "VisualizationHelper.h"
 #include <iostream>
 
+cv::viz::Viz3d visualizer("3D-Points");
+
 void visualize3DKeypoints(const std::vector<cv::Point3f> &positions) {
   // Check for empty positions
   if (positions.empty()) {
@@ -9,15 +11,16 @@ void visualize3DKeypoints(const std::vector<cv::Point3f> &positions) {
   }
 
   // Create a 3D visualizer
-  cv::viz::Viz3d visualizer("3D Keypoint Visualization");
-
+  // cv::viz::Viz3d visualizer("3D Keypoint Visualization");
+  // visualizer.removeWidget("Keypoint Cloud");
+  visualizer.removeAllWidgets();
   // Create point cloud widget and add points
   cv::viz::WCloud cloud(positions, cv::viz::Color::green());
   visualizer.showWidget("Keypoint Cloud", cloud);
 
   // Start the interactive visualizer
-  std::cout << "Press 'q' to exit the visualization window." << std::endl;
-  visualizer.spin();
+  // std::cout << "Press 'q' to exit the visualization window." << std::endl;
+  visualizer.spinOnce();
 }
 
 // Function to visualize 3D keypoints with tooltips
@@ -56,6 +59,30 @@ void visualize3DKeypointsWithTooltips(const std::vector<cv::Point3f> &positions,
     // Add the text to the visualizer
     visualizer.showWidget("Tooltip_" + std::to_string(i), text);
   }
+
+  // Start the interactive visualizer
+  std::cout << "Press 'q' to exit the visualization window." << std::endl;
+  visualizer.spin();
+}
+
+void visualizeTrajectory(const std::vector<cv::Point3f> &trajectory,
+                         const cv::viz::Color &color) {
+  // Check if the trajectory is empty
+  if (trajectory.empty()) {
+    std::cerr << "Error: No trajectory to visualize!" << std::endl;
+    return;
+  }
+
+  // Create a 3D visualizer
+  cv::viz::Viz3d visualizer("3D Trajectory Visualization");
+
+  // Create a polyline widget to represent the trajectory
+  cv::viz::WPolyLine line(trajectory, color);
+  visualizer.showWidget("Trajectory Line", line);
+
+  // Optionally, visualize trajectory points as well
+  cv::viz::WCloud points(trajectory, cv::viz::Color::green());
+  visualizer.showWidget("Trajectory Points", points);
 
   // Start the interactive visualizer
   std::cout << "Press 'q' to exit the visualization window." << std::endl;
