@@ -119,8 +119,6 @@ std::vector<cv::DMatch> descriptor_matcher2(const cv::Mat &descriptors1,
     // Passed both filters
     good_matches.push_back(best);
   }
-
-  std::cout << peakSlope << std::endl;
   
   return good_matches;
 }
@@ -236,7 +234,6 @@ std::vector<Landmark> stereo_landmarks(const cv::Mat &P1,
   std::vector<cv::Point2f> pts1, pts2;
   cv::Mat points4D;
 
-
   if (matches.empty() ||
       keypoints1.empty() ||
       keypoints2.empty() ||
@@ -257,7 +254,7 @@ std::vector<Landmark> stereo_landmarks(const cv::Mat &P1,
   cv::Mat P1f, P2f;
   P1.convertTo(P1f, CV_32F);
   P2.convertTo(P2f, CV_32F);
-
+  
   cv::triangulatePoints(P1f, P2f, pts1, pts2, points4D);
 
   landmarks.reserve(points4D.cols);
@@ -295,12 +292,14 @@ std::vector<Landmark> stereo_landmarks(const cv::Mat &P1,
   return landmarks;
 }
 
-std::vector<Landmark> stereo_landmarks(const Calibration &calib,
+std::vector<Landmark> stereo_landmarks(Calibration &calib,
                                        const std::vector<cv::KeyPoint> &keypoints1,
                                        const std::vector<cv::KeyPoint> &keypoints2,
                                        const cv::Mat &descriptors1,
                                        const cv::Mat &descriptors2,
                                        const std::vector<cv::DMatch> &matches)
 {
+  if (calib.P1.empty() || calib.P2.empty())
+    calib.calcRectifyParameters();
   return stereo_landmarks(calib.P1, calib.P2, keypoints1, keypoints2, descriptors1, descriptors2, matches);
 }

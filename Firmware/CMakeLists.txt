@@ -7,13 +7,13 @@ add_subdirectory(I2C)
 add_subdirectory(ICM20948)
 add_subdirectory(Capture)
 add_subdirectory(DataProcessing)
-add_subdirectory(Visualization)
+#add_subdirectory(Visualization)
 add_subdirectory(Utility)
 
 # Build executables in tests/ (one per .cpp). Enable by uncommenting the line below.
 # If you prefer to keep tests/ ignored, leave this commented.
 add_subdirectory(tests)
-add_subdirectory(Tests_Visualization)
+#add_subdirectory(Tests_Visualization)
 add_subdirectory(Tests_Capture)
 add_subdirectory(Tests_Algorithms)
 

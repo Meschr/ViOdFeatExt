@@ -54,7 +54,7 @@ std::vector<Landmark> stereo_landmarks(const cv::Mat &P1,
                                        const cv::Mat &descriptors1,
                                        const cv::Mat &descriptors2,
                                        const std::vector<cv::DMatch> &matches);
-std::vector<Landmark> stereo_landmarks(const Calibration &calib,
+std::vector<Landmark> stereo_landmarks(Calibration &calib,
                                        const std::vector<cv::KeyPoint> &keypoints1,
                                        const std::vector<cv::KeyPoint> &keypoints2,
                                        const cv::Mat &descriptors1,

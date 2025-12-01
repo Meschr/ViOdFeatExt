@@ -42,10 +42,10 @@ public:
                      cv::Mat &imgL,
                      cv::Mat &imgR);
 
-private:
   void calcIntrisicExtrinsicParameters(void);
   void calcRectifyParameters(void);
   void calcRectifyMap(void);
+  private:
   std::pair<std::vector<cv::Point2f>, std::vector<cv::Point2f>> getChessboardPoints(const std::vector<std::string> &leftFiles,
                                                                                                  const std::vector<std::string> &rightFiles,
                                                                                                  const int index,
