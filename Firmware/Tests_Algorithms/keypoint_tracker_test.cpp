@@ -1,26 +1,18 @@
 #include "CaptureDevice.h"
 #include "Calibration.h"
 #include "ProcessData.h"
+#include "DatasetReader.h"
+#include <iostream>
 
 int main(int argc, char** argv) {
-  /**Stereo camera device implementation*/
+  DatasetReader reader;
   CaptureDevice camDev;
-
   Calibration calib;
   std::string filename = "../DataProcessing/stereoCalibration.yml";
-
-  //cv::Mat imgL1, imgR1, imgL2, imgR2, imgL3, imgR3;
+  calib.loadStereoCalibration(filename);
 
   if (argc > 1) 
     filename = argv[1];
-  calib.loadStereoCalibration(filename);
-  std::cout<<"parameters: "<<std::endl;
-  std::cout<<"K1: "<<calib.K1<<std::endl;
-  std::cout<<"D1: "<<calib.D1<<std::endl;
-  std::cout<<"K2: "<<calib.K2<<std::endl; 
-  std::cout<<"D2: "<<calib.D2<<std::endl;
-  std::cout<<"R: "<<calib.R<<std::endl;
-  std::cout<<"T: "<<calib.T<<std::endl;
 
   try {
     //camDev.Init();
@@ -29,20 +21,70 @@ int main(int argc, char** argv) {
     return 1;
   }
 
-    // gotta add the relative path!!!!!!!!!
-    //Frame 1
-    std::string image_path1 = "/home/robinazv/ViOdFeatExt/LogData/2025-11-18_1/2025-11-18_11-47-30_linearMovement1TowardsSatellite500mm/left_001316.png";
-    std::string image_path2 = "/home/robinazv/ViOdFeatExt/LogData/2025-11-18_1/2025-11-18_11-47-30_linearMovement1TowardsSatellite500mm/right_001317.png";
-    
-    cv::Mat imgL1 = cv::imread(image_path1, cv::IMREAD_GRAYSCALE); //Left image frame 1
-    cv::Mat imgR1 = cv::imread(image_path2, cv::IMREAD_GRAYSCALE); //right image frame 1
+  std::vector<Landmark> Previous_landmark_L ;
 
-    auto [kpsL, dL] = single_ORB(imgL1);
-    auto [kpsR, dR] = single_ORB(imgR1);
-    auto matches = descriptor_matcher(dL, dR, 0.7);
+  const std::string subfolderName = "2025-11-18_11-59-45_linearMovementPointedIntoTheRoom400mm";
+  reader.loadImagePairs(subfolderName, false);
+  cv::Mat imgL_raw, imgR_raw, imgL, imgR, lastR, lastL;
+  int frame_counter = 0;
+  while (reader.nextStereoImagePair(imgL_raw, imgR_raw)) {
+    frame_counter++;
   
-    auto stereo_landmarks1 = stereo_landmarks( calib, kpsL, kpsR, dL, dR, matches);
-    std::cout << "Frame 1: Landmarks: " << stereo_landmarks1.size() << std::endl;
+
+    calib.rectifyStereo(imgL_raw, imgR_raw, imgL, imgR);
+    cv::imshow("Rectified Left Image", imgL);
+    cv::imshow("Rectified Right Image", imgR);
+
+    if (frame_counter == 0)
+    {
+      lastR = imgR.clone();
+      lastL = imgL.clone();
+      continue;
+    }
+    
+    
+
+    //std::vector<cv::Point3f> points = img_to_3dpoints(calib, imgL, imgR); // L + R give in the image, get back 3d points and the corresponding vector with the IDs
+    auto matches = img_to_matches(calib, imgL, lastL);
+    
+    lastR = imgR.clone();
+    lastL = imgL.clone();
+    //check how many matches found
+
+
+    std::cout << "Number of matches in frame " << frame_counter << ": " << matches.size() << std::endl;
+    //auto landmarks = img_to_landmark(calib, imgL, imgR);
+    frame_counter++;
+    std::cout << "Frame: " << frame_counter << std::endl;
+    if (cv::waitKey(0) == 'q') {
+      break;
+}}
+    // if frame nr is o then skip,else find matches between previous and current landmarks.descriptior
+
+
+    // for (const auto &lm : landmarks) {
+    //     descriptors_lm1.push_back(lm.descriptor);
+    // }
+    // for (const auto &lm : landmarks2) {
+    //     descriptors_lm2.push_back(lm.descriptor);
+    // }
+    // for (const auto &lm : landmarks3) {
+    //     descriptors_lm3.push_back(lm.descriptor);
+    // }
+
+
+
+    // if (frame_counter == 0) {
+    //   Previous_landmark_L = landmarks;
+    // } else {
+    //   cv::Mat current_descriptor = landmarks.descriptor;
+    //   cv::Mat previous_descriptor = Previous_landmark_L.descriptor;
+    //   auto matches_lm = descriptor_matcher(previous_descriptor, current_descriptor, 0.7);
+    //   std::cout << "Matches between landmarks of previous and current frame: " << matches_lm.size() << std::endl;
+    //   cv::waitKey(0);
+    // }
+      
+
 
     // auto landmarks = path_to_landmark(image_path1, image_path2);
     // auto landmarks2 = path_to_landmark(image_path3, image_path4);

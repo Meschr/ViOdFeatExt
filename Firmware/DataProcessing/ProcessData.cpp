@@ -43,6 +43,7 @@ std::pair<std::vector<cv::KeyPoint>, cv::Mat> single_SIFT(const cv::Mat &img)
 
 
 
+
 std::vector<cv::DMatch> descriptor_matcher(const cv::Mat &descriptors1, const cv::Mat &descriptors2, const float thresh)
 {
   cv::BFMatcher matcher(cv::NORM_HAMMING);
@@ -66,63 +67,13 @@ std::vector<cv::DMatch> descriptor_matcher(const cv::Mat &descriptors1, const cv
   return good_matches;
 }
 
-// Bad results correct functionality may be debbu
-std::vector<cv::DMatch> descriptor_matcher2(const cv::Mat &descriptors1, 
-                                           const std::vector<cv::KeyPoint> &keypoints1,
-                                           const cv::Mat &descriptors2, 
-                                           const std::vector<cv::KeyPoint> &keypoints2,
-                                           const float thresh,
-                                           const float maxSlope)
-{
-  cv::BFMatcher matcher(cv::NORM_HAMMING);
-  std::vector<std::vector<cv::DMatch>> knnMatches;
-  std::vector<cv::DMatch> good_matches;
-  float peakSlope = 0.0;
 
-  if (descriptors1.empty() || descriptors2.empty() ||
-      keypoints1.empty()   || keypoints2.empty())
-    return good_matches;
 
-  matcher.knnMatch(descriptors1, descriptors2, knnMatches, 2);
 
-  for (const auto &mVec : knnMatches)
-  {
-    // Need at least 2 neighbors for ratio test
-    if (mVec.size() < 2)
-      continue;
 
-    const cv::DMatch &best  = mVec[0];
-    const cv::DMatch &second = mVec[1];
 
-    // 1) Lowe's ratio test
-    if (best.distance >= thresh * second.distance)
-      continue;
 
-    // 2) Direction / slope filtering
-    const cv::Point2f &p1 = keypoints1[best.queryIdx].pt;
-    const cv::Point2f &p2 = keypoints2[best.trainIdx].pt;
-
-    cv::Point2f dir = p2 - p1;
-    float n = cv::norm(dir);
-    if (n == 0.0f)
-      continue;
-
-    cv::Point2f unit_dir = dir * (1.0f / n);
-
-    // For rectified stereo: direction should be mostly horizontal.
-    // unit_dir.y is the vertical component of the unit vector.
-    if (std::abs(unit_dir.y) > maxSlope)
-      continue;
-
-    if (peakSlope < std::abs(unit_dir.y))
-      peakSlope = std::abs(unit_dir.y);
-    // Passed both filters
-    good_matches.push_back(best);
-  }
-  
-  return good_matches;
-}
-
+// for diplaying 2 images side by side ans connecting keypoints
 void draw_and_show(const cv::Mat &imgL,
                    const cv::Mat &imgR,
                    const std::vector<cv::KeyPoint> &keypoints1,
@@ -141,6 +92,10 @@ void draw_and_show(const cv::Mat &imgL,
 
 
 
+
+
+
+// for drawing only on one image the matched keypoints
 void draw_landmark_kyp(const cv::Mat &img, 
                        const std::vector<Landmark> &landmarks)
 {
@@ -153,6 +108,9 @@ void draw_landmark_kyp(const cv::Mat &img,
     }
     cv::imshow("Landmark Keypoints", img_draw);
 }
+
+
+
 
 
 
@@ -206,21 +164,74 @@ std::vector<cv::Point3f> stereo_3Dpoints(const cv::Mat &P1,
 
 
 
-std::vector<Landmark> path_to_landmark(
-        const std::string &leftPath,
-        const std::string &rightPath,
-        const cv::Mat &P1,
-        const cv::Mat &P2)
+
+
+
+
+
+// give 2 images and get pack the 3d points 
+std::vector<cv::Point3f> img_to_3dpoints(
+        Calibration &calib,
+        const cv::Mat &leftimg,
+        const cv::Mat &rightimg)
 {
-    cv::Mat imgL = cv::imread(leftPath, cv::IMREAD_GRAYSCALE);
-    cv::Mat imgR = cv::imread(rightPath, cv::IMREAD_GRAYSCALE);
 
-    auto [kpsL, dL] = single_ORB(imgL);
-    auto [kpsR, dR] = single_ORB(imgR);
-
+    auto [kpsL, dL] = single_ORB(leftimg);
+    auto [kpsR, dR] = single_ORB(rightimg);
     auto stereoMatches = descriptor_matcher(dL, dR, 0.7);
-    return stereo_landmarks(P1, P2, kpsL, kpsR, dL, dR, stereoMatches);
+    auto landmarks = stereo_landmarks(calib, kpsL, kpsR, dL, dR, stereoMatches);
+
+    std::vector<cv::Point3f> positions;
+    for (const auto &lm : landmarks) {
+      std::cout << lm.position << std::endl;
+      positions.push_back(lm.position);
+    }
+
+    return positions;
 }
+
+
+
+
+
+// give 2 images and get back the matches
+std::vector<cv::DMatch> img_to_matches(
+        Calibration &calib,
+        const cv::Mat &leftimg,
+        const cv::Mat &rightimg)
+{
+
+    auto [kpsL, dL] = single_ORB(leftimg);
+    auto [kpsR, dR] = single_ORB(rightimg);
+    auto stereoMatches = descriptor_matcher(dL, dR, 0.6);
+
+
+    return stereoMatches;
+}
+
+
+
+// give 2 images and get pack the 3d points and the IDs
+std::vector<Landmark> img_to_landmark(
+        Calibration &calib,
+        const cv::Mat &leftimg,
+        const cv::Mat &rightimg)
+{
+
+    auto [kpsL, dL] = single_ORB(leftimg);
+    auto [kpsR, dR] = single_ORB(rightimg);
+    auto stereoMatches = descriptor_matcher(dL, dR, 0.7);
+    auto landmarks = stereo_landmarks(calib, kpsL, kpsR, dL, dR, stereoMatches);
+    return landmarks;
+}
+
+
+
+
+
+
+
+
 
 std::vector<Landmark> stereo_landmarks(const cv::Mat &P1,
                                        const cv::Mat &P2,
@@ -291,6 +302,8 @@ std::vector<Landmark> stereo_landmarks(const cv::Mat &P1,
 
   return landmarks;
 }
+
+
 
 std::vector<Landmark> stereo_landmarks(Calibration &calib,
                                        const std::vector<cv::KeyPoint> &keypoints1,

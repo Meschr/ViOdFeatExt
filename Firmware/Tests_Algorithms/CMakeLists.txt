@@ -10,8 +10,8 @@ add_executable(test_kp_tracking ${CMAKE_CURRENT_SOURCE_DIR}/keypoint_tracker_tes
 
 # fixing opencv to work for me
 target_include_directories(test_sift_time PRIVATE 
-  {CMAKE_SOURCE_DIR}/../DataProcessing
-  {OpenCV_INCLUDE_DIRS}
+  ${CMAKE_SOURCE_DIR}/../DataProcessing
+  ${OpenCV_INCLUDE_DIRS}
 )
 
 target_include_directories(test_fast_time PRIVATE 
@@ -23,12 +23,13 @@ target_include_directories(test_kp_tracking PRIVATE
   ${CMAKE_SOURCE_DIR}/../DataProcessing
   ${CMAKE_SOURCE_DIR}/../Capture
   ${OpenCV_INCLUDE_DIRS}
+  ${CMAKE_SOURCE_DIR}/../Utility
 )
 
 # Link the firmware libraries built by parent
 target_link_libraries(test_sift_time PRIVATE ${OpenCV_LIBS} dataProcessing)
 target_link_libraries(test_fast_time PRIVATE ${OpenCV_LIBS} dataProcessing)
-target_link_libraries(test_kp_tracking PRIVATE ${OpenCV_LIBS} dataProcessing captureDevice)
+target_link_libraries(test_kp_tracking PRIVATE ${OpenCV_LIBS} dataProcessing captureDevice Utility)
 
 # Optionally set C++ standard
 target_compile_features(test_sift_time PRIVATE cxx_std_11)

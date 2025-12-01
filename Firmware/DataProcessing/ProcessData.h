@@ -35,11 +35,22 @@ void draw_and_show(const cv::Mat &imgL,
 void draw_landmark_kyp(const cv::Mat &img,
                        const std::vector<Landmark> &landmarks);
 
-std::vector<Landmark> path_to_landmark(
-        const std::string &leftPath,
-        const std::string &rightPath,
-        const cv::Mat &P1,
-        const cv::Mat &P2);
+std::vector<cv::Point3f> img_to_3dpoints(
+        Calibration &calib,
+        const cv::Mat &leftimg,
+        const cv::Mat &rightimg);
+
+
+std::vector<Landmark> img_to_landmark(
+        Calibration &calib,
+        const cv::Mat &leftimg,
+        const cv::Mat &rightimg);
+
+std::vector<cv::DMatch> img_to_matches(
+        Calibration &calib,
+        const cv::Mat &leftimg,
+        const cv::Mat &rightimg);
+
 
 std::vector<cv::Point3f> stereo_3Dpoints(const cv::Mat &P1,
                                          const cv::Mat &P2,

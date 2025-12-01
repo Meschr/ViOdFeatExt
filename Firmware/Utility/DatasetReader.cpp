@@ -73,8 +73,10 @@ bool DatasetReader::nextStereoImagePair(cv::Mat &leftImage,
   const auto [leftPath, rightPath] = imagePairsQueue.front();
   imagePairsQueue.pop();
 
-  leftImage = cv::imread(leftPath, cv::IMREAD_COLOR);
-  rightImage = cv::imread(rightPath, cv::IMREAD_COLOR);
+  // load the images in grayscale
+
+  leftImage = cv::imread(leftPath, cv::IMREAD_GRAYSCALE); 
+  rightImage = cv::imread(rightPath, cv::IMREAD_GRAYSCALE);
 
   // Check if images loaded successfully
   if (leftImage.empty() || rightImage.empty()) {
