@@ -34,14 +34,8 @@ inline Eigen::Quaterniond quatMultiply(const Eigen::Quaterniond &q, const Eigen:
   return q * r;
 }
 
-// Normalize quaternion to avoid drift
-inline void normalizeQuat(Eigen::Quaterniond &q)
-{
-  q.normalize();
-}
-
 // Skew symmetric matrix from vector
-Eigen::Matrix3d skew(const Eigen::Vector3d &v)
+static Eigen::Matrix3d skew(const Eigen::Vector3d &v)
 {
   Eigen::Matrix3d m;
   m << 0, -v.z(), v.y(),
@@ -50,7 +44,7 @@ Eigen::Matrix3d skew(const Eigen::Vector3d &v)
   return m;
 }
 
-EKF::EKF()
+EKF::EKF(States_cov_init init_cov, Meas_cov meas_cov, Proc_cov proc_cov)
 {
   // initialize to zeros / identity
   p.setZero();
@@ -60,21 +54,21 @@ EKF::EKF()
   ba.setZero();
 
   P.setZero();
-  P.block<3, 3>(IDX_P, IDX_P) = Eigen::Matrix3d::Identity() * 1e-3; // small initial pos cov
-  P.block<3, 3>(IDX_V, IDX_V) = Eigen::Matrix3d::Identity() * 1e-3;
-  P.block<3, 3>(IDX_Q_ERR, IDX_Q_ERR) = Eigen::Matrix3d::Identity() * 1e-3;
-  P.block<3, 3>(IDX_BG, IDX_BG) = Eigen::Matrix3d::Identity() * 1e-4;
-  P.block<3, 3>(IDX_BA, IDX_BA) = Eigen::Matrix3d::Identity() * 1e-4;
+  P.block<3, 3>(IDX_P, IDX_P) = Eigen::Matrix3d::Identity() * init_cov.pos; // small initial pos cov
+  P.block<3, 3>(IDX_V, IDX_V) = Eigen::Matrix3d::Identity() * init_cov.pos;
+  P.block<3, 3>(IDX_Q_ERR, IDX_Q_ERR) = Eigen::Matrix3d::Identity() * init_cov.quat;
+  P.block<3, 3>(IDX_BG, IDX_BG) = Eigen::Matrix3d::Identity() * init_cov.gyro_bias;
+  P.block<3, 3>(IDX_BA, IDX_BA) = Eigen::Matrix3d::Identity() * init_cov.acc_bias;
 
   // default measurement covariances
-  R_vo_p = Eigen::Matrix3d::Identity() * 1e-2;     // tune
-  R_vo_theta = Eigen::Matrix3d::Identity() * 1e-3; // tune
+  R_vo_p     = Eigen::Matrix3d::Identity() * meas_cov.pos;   // tune
+  R_vo_theta = Eigen::Matrix3d::Identity() * meas_cov.theta; // tune
 
   // process noise (continuous) - tune to your sensor
-  Q_gyro = Eigen::Matrix3d::Identity() * 1e-5;
-  Q_acc = Eigen::Matrix3d::Identity() * 1e-3;
-  Q_bg = Eigen::Matrix3d::Identity() * 1e-8;
-  Q_ba = Eigen::Matrix3d::Identity() * 1e-6;
+  Q_gyro = Eigen::Matrix3d::Identity() * proc_cov.gyro;
+  Q_acc  = Eigen::Matrix3d::Identity() * proc_cov.acc;
+  Q_bg   = Eigen::Matrix3d::Identity() * proc_cov.bg;
+  Q_ba   = Eigen::Matrix3d::Identity() * proc_cov.ba;
 
   p_last_vo.setZero();
   q_last_vo = Eigen::Quaterniond::Identity();
@@ -101,7 +95,7 @@ void EKF::predict(const Eigen::Vector3d &acc_m,
   Eigen::Vector3d dtheta = omega * dt; // small-angle approx
   Eigen::Quaterniond dq = smallAngleToQuat(dtheta);
   q = quatMultiply(q, dq);
-  normalizeQuat(q);
+  q.normalize();
 
   // 3) Integrate velocity & position (assuming acc in body frame)
   Eigen::Vector3d acc_world = q * acc; // rotate body->world
@@ -202,7 +196,7 @@ void EKF::updateRelativeVO(const Eigen::Vector3d &dp_vo_world,
   p += dp;
   v += dv;
   q = smallAngleToQuat(dtheta) * q;
-  normalizeQuat(q);
+  q.normalize();
   bg += dbg;
   ba += dba;
 

@@ -17,6 +17,31 @@
 #endif
 #include <iostream>
 
+// Measurement noice covariance from the visual odometry
+struct States_cov_init
+{
+  float pos       = 1e-3;
+  float quat      = 1e-3;
+  float gyro_bias = 1e-4;
+  float acc_bias  = 1e-4;
+};
+
+// Measurement noice covariance from the visual odometry
+struct Meas_cov
+{
+  float pos   = 1e-2; 
+  float theta = 1e-3;
+};
+
+// Measurement noice covariance from the visual odometry
+struct Proc_cov
+{
+  float gyro = 1e-5;
+  float acc  = 1e-3;
+  float bg   = 1e-8;
+  float ba   = 1e-6;
+};
+
 // State sizes
 constexpr int P_SZ = 3;
 constexpr int V_SZ = 3;
@@ -26,9 +51,8 @@ constexpr int BA_SZ = 3;
 constexpr int STATE_SZ = P_SZ + V_SZ + 3 + BG_SZ + BA_SZ; // note: orientation error linearization uses 3 instead of 4
 
 Eigen::Quaterniond smallAngleToQuat(const Eigen::Vector3d &theta);
-Eigen::Quaterniond quatMultiply(const Eigen::Quaterniond &q, const Eigen::Quaterniond &r);
-void normalizeQuat(Eigen::Quaterniond &q);
-Eigen::Matrix3d skew(const Eigen::Vector3d &v);
+// Eigen::Quaterniond quatMultiply(const Eigen::Quaterniond &q, const Eigen::Quaterniond &r);
+// Eigen::Matrix3d skew(const Eigen::Vector3d &v);
 
 class EKF
 {
@@ -58,7 +82,7 @@ public:
   Eigen::Vector3d p_last_vo;
   Eigen::Quaterniond q_last_vo;
   bool has_last_vo = false;
-  EKF();
+  EKF(States_cov_init init_cov=States_cov_init(), Meas_cov meas_cov=Meas_cov(), Proc_cov proc_cov=Proc_cov());
   void setLastVOFrame();
   void predict(const Eigen::Vector3d &acc,
                const Eigen::Vector3d &omega,
