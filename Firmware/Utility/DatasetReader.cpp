@@ -80,8 +80,10 @@ bool DatasetReader::nextStereoImagePair(cv::Mat &leftImage,
   rightImage = cv::imread(rightPath, cv::IMREAD_GRAYSCALE);
 
 
+  //in case we want to implement the kp tracking on binary images
+  //cv::threshold(leftImage, leftImage, 100, 255, cv::THRESH_BINARY);
+  //cv::threshold(rightImage, rightImage, 100, 255, cv::THRESH_BINARY);
 
-  //resising --------------------------------------------------------------------------------------------------------------  
   cv::resize(leftImage, leftImage, cv::Size(), resolution, resolution, cv::INTER_LINEAR);
   cv::resize(rightImage, rightImage, cv::Size(), resolution, resolution, cv::INTER_LINEAR);
 

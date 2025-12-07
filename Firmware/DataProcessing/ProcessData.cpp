@@ -61,13 +61,48 @@ std::vector<cv::DMatch> descriptor_matcher(const cv::Mat &descriptors1, const cv
     if (m.size() < 2)
       continue;
     if (m[0].distance < thresh * m[1].distance)
-    { // can change this value to say how much better the best match has to be compared to second best
+    { 
       good_matches.push_back(m[0]);
     }
   }
   return good_matches;
 }
 
+
+
+
+
+
+// should filter out the wrong matches that have a very differnt y delta
+std::vector<cv::DMatch> filtered_descriptor_matcher(const cv::Mat &descriptors1, 
+                                                    const cv::Mat &descriptors2, 
+                                                    const std::vector<cv::KeyPoint> &keypoints1,
+                                                    const std::vector<cv::KeyPoint> &keypoints2,
+                                                    const float thresh)
+{
+  cv::BFMatcher matcher(cv::NORM_HAMMING);
+  std::vector<std::vector<cv::DMatch>> knnMatches;
+  std::vector<cv::DMatch> good_matches;
+
+  if (descriptors1.empty() || descriptors2.empty())
+    return good_matches;
+
+  matcher.knnMatch(descriptors1, descriptors2, knnMatches, 2);
+
+  for (auto &m : knnMatches)
+  {
+    if (m.size() < 2)
+      continue;
+    if (m[0].distance < thresh * m[1].distance)
+    { 
+        float yL = keypoints1[m[0].queryIdx].pt.y;
+        float yR = keypoints2[m[0].trainIdx].pt.y;
+        if (std::abs(yL - yR) < 0.5f)
+                good_matches.push_back(m[0]);
+    }
+  }
+  return good_matches;
+}
 
 
 
@@ -84,17 +119,21 @@ void draw_and_show(const cv::Mat &imgL,
   std::vector<cv::KeyPoint> kpsL, kpsR;
   cv::Mat dL, dR;
 
-  if (alg == 1) {
-      std::tie(kpsL, dL) = single_ORB(imgL);
-      std::tie(kpsR, dR) = single_ORB(imgR);
+  switch (alg)
+  {
+    case 1:
+        std::tie(kpsL, dL) = single_ORB(imgL);
+        std::tie(kpsR, dR) = single_ORB(imgR);  
+        break;
+    case 2:
+        std::tie(kpsL, dL) = single_BRISK(imgL);
+        std::tie(kpsR, dR) = single_BRISK(imgR);
+        
   }
 
-  if (alg == 2) {
-      std::tie(kpsL, dL) = single_BRISK(imgL);
-      std::tie(kpsR, dR) = single_BRISK(imgR);
-  }
+  //auto stereoMatches = descriptor_matcher(dL, dR, 0.6);
+  auto stereoMatches = filtered_descriptor_matcher(dL, dR, kpsL, kpsR, 0.6);// can change this value to say how much better the best match has to be compared to second best
 
-  auto stereoMatches = descriptor_matcher(dL, dR, 0.6);
   cv::drawMatches(imgL, kpsL, imgR, kpsR, stereoMatches, img_matches);
   cv::Mat small_matches;
 
@@ -191,23 +230,25 @@ std::vector<cv::Point3f> stereo_3Dpoints(const cv::Mat &P1,
 // give 2 images and get pack the 3d points 
 std::vector<cv::Point3f> img_to_3dpoints(
         Calibration &calib,
-        const cv::Mat &leftimg,
-        const cv::Mat &rightimg,
+        const cv::Mat &imgL,
+        const cv::Mat &imgR,
         int alg )
 {
 
     std::vector<cv::KeyPoint> kpsL, kpsR;
     cv::Mat dL, dR;
 
-    if (alg == 1) {
-        std::tie(kpsL, dL) = single_ORB(leftimg);
-        std::tie(kpsR, dR) = single_ORB(rightimg);
-    }
-
-    if (alg == 2) {
-        std::tie(kpsL, dL) = single_BRISK(leftimg);
-        std::tie(kpsR, dR) = single_BRISK(rightimg);
-    }
+  switch (alg)
+  {
+    case 1:
+        std::tie(kpsL, dL) = single_ORB(imgL);
+        std::tie(kpsR, dR) = single_ORB(imgR);  
+        break;
+    case 2:
+        std::tie(kpsL, dL) = single_BRISK(imgL);
+        std::tie(kpsR, dR) = single_BRISK(imgR);
+        
+  }
 
     auto stereoMatches = descriptor_matcher(dL, dR, 0.6);
     auto landmarks = stereo_landmarks(calib, kpsL, kpsR, dL, dR, stereoMatches);
@@ -229,24 +270,26 @@ std::vector<cv::Point3f> img_to_3dpoints(
 // int algorithm: 1 = ORB, 2 = BRISK, 3 = SIFT?
 std::vector<cv::DMatch> img_to_matches(
         Calibration &calib,
-        const cv::Mat &leftimg,
-        const cv::Mat &rightimg,
+        const cv::Mat &imgL,
+        const cv::Mat &imgR,
         int alg)
 {
     std::vector<cv::KeyPoint> kpsL, kpsR;
     cv::Mat dL, dR;
 
-    if (alg == 1) {
-        std::tie(kpsL, dL) = single_ORB(leftimg);
-        std::tie(kpsR, dR) = single_ORB(rightimg);
+    switch (alg)
+    {
+      case 1:
+          std::tie(kpsL, dL) = single_ORB(imgL);
+          std::tie(kpsR, dR) = single_ORB(imgR);  
+          break;
+      case 2:
+          std::tie(kpsL, dL) = single_BRISK(imgL);
+          std::tie(kpsR, dR) = single_BRISK(imgR);
+          
     }
 
-    if (alg == 2) {
-        std::tie(kpsL, dL) = single_BRISK(leftimg);
-        std::tie(kpsR, dR) = single_BRISK(rightimg);
-    }
-
-    auto stereoMatches = descriptor_matcher(dL, dR, 0.6);
+    auto stereoMatches = filtered_descriptor_matcher(dL, dR, kpsL, kpsR, 0.6);
 
 
     return stereoMatches;
@@ -257,21 +300,23 @@ std::vector<cv::DMatch> img_to_matches(
 // give 2 images and get pack the 3d points and the IDs
 std::vector<Landmark> img_to_landmark(
         Calibration &calib,
-        const cv::Mat &leftimg,
-        const cv::Mat &rightimg,
+        const cv::Mat &imgL,
+        const cv::Mat &imgR,
         int alg)
 {
     std::vector<cv::KeyPoint> kpsL, kpsR;
     cv::Mat dL, dR;
 
-    if (alg == 1) {
-        std::tie(kpsL, dL) = single_ORB(leftimg);
-        std::tie(kpsR, dR) = single_ORB(rightimg);
-    }
-
-    if (alg == 2) {
-        std::tie(kpsL, dL) = single_BRISK(leftimg);
-        std::tie(kpsR, dR) = single_BRISK(rightimg);
+    switch (alg)
+    {
+      case 1:
+          std::tie(kpsL, dL) = single_ORB(imgL);
+          std::tie(kpsR, dR) = single_ORB(imgR);  
+          break;
+      case 2:
+          std::tie(kpsL, dL) = single_BRISK(imgL);
+          std::tie(kpsR, dR) = single_BRISK(imgR);
+          
     }
 
     auto stereoMatches = descriptor_matcher(dL, dR, 0.7);

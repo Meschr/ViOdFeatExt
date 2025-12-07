@@ -26,6 +26,12 @@ std::vector<cv::DMatch> descriptor_matcher(const cv::Mat &descriptors1,
                                            const std::vector<cv::KeyPoint> &keypoints2,
                                            const float thresh,
                                            const float maxSlope);
+
+std::vector<cv::DMatch> filtered_descriptor_matcher(const cv::Mat &descriptors1, 
+                                                    const cv::Mat &descriptors2, 
+                                                    const std::vector<cv::KeyPoint> &keypoints1,
+                                                    const std::vector<cv::KeyPoint> &keypoints2,
+                                                    const float thresh);
                                            
 void draw_and_show(const cv::Mat &imgL,
                    const cv::Mat &imgR,
