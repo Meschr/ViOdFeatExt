@@ -30,8 +30,12 @@ int main(int argc, char** argv) {
 
   //-------------------------------------------------k --> 1 = ORB, 2 = BRISK------------------------------------------------------------------------------
   int k = 2; 
+  //--------------------------------------------------- resolution = 0.5 means half the size of the image----------------------------------------
+  float resolution = 0.5;
 
-  while (reader.nextStereoImagePair(imgL_raw, imgR_raw)) {
+
+  while (reader.nextStereoImagePair(imgL_raw, imgR_raw, resolution)) {
+
     frame_counter++;
   
 

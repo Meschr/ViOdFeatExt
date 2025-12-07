@@ -18,7 +18,7 @@ std::vector<cv::KeyPoint> single_FAST(const cv::Mat &img)
 
 std::pair<std::vector<cv::KeyPoint>, cv::Mat> single_ORB(const cv::Mat &img)
 {
-  auto orb = cv::ORB::create(50);
+  auto orb = cv::ORB::create(100);
   std::vector<cv::KeyPoint> keypoints;
   cv::Mat descriptors;
 
@@ -33,7 +33,7 @@ std::pair<std::vector<cv::KeyPoint>, cv::Mat> single_ORB(const cv::Mat &img)
 
 std::pair<std::vector<cv::KeyPoint>, cv::Mat> single_BRISK(const cv::Mat &img)
 {
-    auto brisk = cv::BRISK::create(90);  
+    auto brisk = cv::BRISK::create(20);  
     std::vector<cv::KeyPoint> keypoints;
     cv::Mat descriptors;
 
@@ -98,7 +98,7 @@ void draw_and_show(const cv::Mat &imgL,
   cv::drawMatches(imgL, kpsL, imgR, kpsR, stereoMatches, img_matches);
   cv::Mat small_matches;
 
-  cv::resize(img_matches, small_matches, cv::Size(), 1.5, 1.5);
+  cv::resize(img_matches, small_matches, cv::Size(), 1, 1);
 
   if (alg == 1){
       cv::imshow("Feature Match with ORB", small_matches);

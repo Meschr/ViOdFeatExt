@@ -64,7 +64,8 @@ void DatasetReader::loadImagePairs(const std::string &subfolderName,
 }
 
 bool DatasetReader::nextStereoImagePair(cv::Mat &leftImage,
-                                        cv::Mat &rightImage) {
+                                        cv::Mat &rightImage,
+                                        float resolution) {
   if (imagePairsQueue.empty()) {
     return false; // No more images in the queue
   }
@@ -77,6 +78,13 @@ bool DatasetReader::nextStereoImagePair(cv::Mat &leftImage,
 
   leftImage = cv::imread(leftPath, cv::IMREAD_GRAYSCALE); 
   rightImage = cv::imread(rightPath, cv::IMREAD_GRAYSCALE);
+
+
+
+  //resising --------------------------------------------------------------------------------------------------------------  
+  cv::resize(leftImage, leftImage, cv::Size(), resolution, resolution, cv::INTER_LINEAR);
+  cv::resize(rightImage, rightImage, cv::Size(), resolution, resolution, cv::INTER_LINEAR);
+
 
   // Check if images loaded successfully
   if (leftImage.empty() || rightImage.empty()) {

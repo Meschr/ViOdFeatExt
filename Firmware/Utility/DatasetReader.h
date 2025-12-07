@@ -21,7 +21,7 @@ public:
                       bool debugPrint = false);
 
   // Function to retrieve the next stereo image pair
-  bool nextStereoImagePair(cv::Mat &leftImage, cv::Mat &rightImage);
+  bool nextStereoImagePair(cv::Mat &leftImage, cv::Mat &rightImage, float resolution);
 
   // Function to parse trajectory data from the log file of the robotic arm
   std::vector<cv::Point3f> parseTrajectoryData(const std::string &fileName);
