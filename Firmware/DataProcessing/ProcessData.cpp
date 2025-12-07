@@ -18,7 +18,7 @@ std::vector<cv::KeyPoint> single_FAST(const cv::Mat &img)
 
 std::pair<std::vector<cv::KeyPoint>, cv::Mat> single_ORB(const cv::Mat &img)
 {
-  auto orb = cv::ORB::create(100);
+  auto orb = cv::ORB::create(50);
   std::vector<cv::KeyPoint> keypoints;
   cv::Mat descriptors;
 
@@ -31,15 +31,16 @@ std::pair<std::vector<cv::KeyPoint>, cv::Mat> single_ORB(const cv::Mat &img)
 
 
 
-std::pair<std::vector<cv::KeyPoint>, cv::Mat> single_SIFT(const cv::Mat &img)
+std::pair<std::vector<cv::KeyPoint>, cv::Mat> single_BRISK(const cv::Mat &img)
 {
-  auto sift = cv::SIFT::create(30);
-  std::vector<cv::KeyPoint> keypoints;
-  cv::Mat descriptors;
-  sift->detectAndCompute(img, cv::noArray(), keypoints, descriptors);
-  return {keypoints, descriptors};
-}
+    auto brisk = cv::BRISK::create(90);  
+    std::vector<cv::KeyPoint> keypoints;
+    cv::Mat descriptors;
 
+    brisk->detectAndCompute(img, cv::noArray(), keypoints, descriptors);
+
+    return {keypoints, descriptors};
+}
 
 
 
@@ -76,17 +77,35 @@ std::vector<cv::DMatch> descriptor_matcher(const cv::Mat &descriptors1, const cv
 // for diplaying 2 images side by side ans connecting keypoints
 void draw_and_show(const cv::Mat &imgL,
                    const cv::Mat &imgR,
-                   const std::vector<cv::KeyPoint> &keypoints1,
-                   const std::vector<cv::KeyPoint> &keypoints2,
-                   const std::vector<cv::DMatch> &matches)
+                   int alg)
 {
   cv::Mat img_matches;
-  cv::drawMatches(imgL, keypoints1, imgR, keypoints2, matches, img_matches);
+  std::cout<< alg << std::endl;
+  std::vector<cv::KeyPoint> kpsL, kpsR;
+  cv::Mat dL, dR;
 
+  if (alg == 1) {
+      std::tie(kpsL, dL) = single_ORB(imgL);
+      std::tie(kpsR, dR) = single_ORB(imgR);
+  }
 
+  if (alg == 2) {
+      std::tie(kpsL, dL) = single_BRISK(imgL);
+      std::tie(kpsR, dR) = single_BRISK(imgR);
+  }
+
+  auto stereoMatches = descriptor_matcher(dL, dR, 0.6);
+  cv::drawMatches(imgL, kpsL, imgR, kpsR, stereoMatches, img_matches);
   cv::Mat small_matches;
+
   cv::resize(img_matches, small_matches, cv::Size(), 1.5, 1.5);
-  cv::imshow("Feature Match", small_matches);
+
+  if (alg == 1){
+      cv::imshow("Feature Match with ORB", small_matches);
+  }
+  if (alg == 2){
+      cv::imshow("Feature Match with BRISK", small_matches);
+  }
 }
 
 
@@ -103,8 +122,8 @@ void draw_landmark_kyp(const cv::Mat &img,
     for (const auto &lm : landmarks)
     {
         cv::circle(img_draw, lm.keypoint.pt, 4, cv::Scalar(0,255,255), -1);
-        cv::putText(img_draw, lm.id, lm.keypoint.pt + cv::Point2f(5,-5),
-        cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0,255,0), 1, cv::LINE_AA);
+        //cv::putText(img_draw, lm.id, lm.keypoint.pt + cv::Point2f(5,-5)),
+        //cv::FONT_HERSHEY_SIMPLEX (0.5, cv::Scalar(0,255,0), 1, cv::LINE_AA);
     }
     cv::imshow("Landmark Keypoints", img_draw);
 }
@@ -173,12 +192,24 @@ std::vector<cv::Point3f> stereo_3Dpoints(const cv::Mat &P1,
 std::vector<cv::Point3f> img_to_3dpoints(
         Calibration &calib,
         const cv::Mat &leftimg,
-        const cv::Mat &rightimg)
+        const cv::Mat &rightimg,
+        int alg )
 {
 
-    auto [kpsL, dL] = single_ORB(leftimg);
-    auto [kpsR, dR] = single_ORB(rightimg);
-    auto stereoMatches = descriptor_matcher(dL, dR, 0.7);
+    std::vector<cv::KeyPoint> kpsL, kpsR;
+    cv::Mat dL, dR;
+
+    if (alg == 1) {
+        std::tie(kpsL, dL) = single_ORB(leftimg);
+        std::tie(kpsR, dR) = single_ORB(rightimg);
+    }
+
+    if (alg == 2) {
+        std::tie(kpsL, dL) = single_BRISK(leftimg);
+        std::tie(kpsR, dR) = single_BRISK(rightimg);
+    }
+
+    auto stereoMatches = descriptor_matcher(dL, dR, 0.6);
     auto landmarks = stereo_landmarks(calib, kpsL, kpsR, dL, dR, stereoMatches);
 
     std::vector<cv::Point3f> positions;
@@ -195,14 +226,26 @@ std::vector<cv::Point3f> img_to_3dpoints(
 
 
 // give 2 images and get back the matches
+// int algorithm: 1 = ORB, 2 = BRISK, 3 = SIFT?
 std::vector<cv::DMatch> img_to_matches(
         Calibration &calib,
         const cv::Mat &leftimg,
-        const cv::Mat &rightimg)
+        const cv::Mat &rightimg,
+        int alg)
 {
+    std::vector<cv::KeyPoint> kpsL, kpsR;
+    cv::Mat dL, dR;
 
-    auto [kpsL, dL] = single_ORB(leftimg);
-    auto [kpsR, dR] = single_ORB(rightimg);
+    if (alg == 1) {
+        std::tie(kpsL, dL) = single_ORB(leftimg);
+        std::tie(kpsR, dR) = single_ORB(rightimg);
+    }
+
+    if (alg == 2) {
+        std::tie(kpsL, dL) = single_BRISK(leftimg);
+        std::tie(kpsR, dR) = single_BRISK(rightimg);
+    }
+
     auto stereoMatches = descriptor_matcher(dL, dR, 0.6);
 
 
@@ -215,11 +258,22 @@ std::vector<cv::DMatch> img_to_matches(
 std::vector<Landmark> img_to_landmark(
         Calibration &calib,
         const cv::Mat &leftimg,
-        const cv::Mat &rightimg)
+        const cv::Mat &rightimg,
+        int alg)
 {
+    std::vector<cv::KeyPoint> kpsL, kpsR;
+    cv::Mat dL, dR;
 
-    auto [kpsL, dL] = single_ORB(leftimg);
-    auto [kpsR, dR] = single_ORB(rightimg);
+    if (alg == 1) {
+        std::tie(kpsL, dL) = single_ORB(leftimg);
+        std::tie(kpsR, dR) = single_ORB(rightimg);
+    }
+
+    if (alg == 2) {
+        std::tie(kpsL, dL) = single_BRISK(leftimg);
+        std::tie(kpsR, dR) = single_BRISK(rightimg);
+    }
+
     auto stereoMatches = descriptor_matcher(dL, dR, 0.7);
     auto landmarks = stereo_landmarks(calib, kpsL, kpsR, dL, dR, stereoMatches);
     return landmarks;
@@ -269,9 +323,7 @@ std::vector<Landmark> stereo_landmarks(const cv::Mat &P1,
   cv::triangulatePoints(P1f, P2f, pts1, pts2, points4D);
 
   landmarks.reserve(points4D.cols);
-  
-  static int frame_num = 1; 
-  static int local_id = 1;
+
 
 
   for (int i = 0; i < points4D.cols; ++i)
@@ -294,7 +346,6 @@ std::vector<Landmark> stereo_landmarks(const cv::Mat &P1,
 
     Landmark lm = {.position = cv::Point3f(X, Y, Z),
                    .descriptor = chosenDesc.clone(),
-                   .id         = std::to_string(frame_num) + "_" + std::to_string(local_id++),
                    .keypoint   = kp1};
 
     landmarks.push_back(std::move(lm));
