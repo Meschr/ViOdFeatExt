@@ -100,7 +100,7 @@ bool DatasetReader::nextStereoImagePair(cv::Mat &leftImage,
 std::pair<std::vector<double>, std::vector<cv::Point3f>>
 DatasetReader::parseTrajectoryData(const std::string &fileName) {
   std::vector<cv::Point3f> trajectory;
-  std::vector<float> trajectory;
+  std::vector<double> timestamps;
 
   // Build the complete file path using the dataset directory and file name
   std::filesystem::path filePath = datasetDirectory / fileName;
