@@ -97,9 +97,10 @@ bool DatasetReader::nextStereoImagePair(cv::Mat &leftImage,
   return true;
 }
 
-std::vector<cv::Point3f>
+std::pair<std::vector<double>, std::vector<cv::Point3f>>
 DatasetReader::parseTrajectoryData(const std::string &fileName) {
   std::vector<cv::Point3f> trajectory;
+  std::vector<float> trajectory;
 
   // Build the complete file path using the dataset directory and file name
   std::filesystem::path filePath = datasetDirectory / fileName;
@@ -134,11 +135,15 @@ DatasetReader::parseTrajectoryData(const std::string &fileName) {
     }
 
     try {
+      // Extract timestamp
+      double timestamp = std::stod(tokens[0]); // Column 0: Timestamp
       // Extract Robot_X, Robot_Y, Robot_Z for trajectory visualization
       float robotX = std::stof(tokens[4]); // Column 4: Robot_X
       float robotY = std::stof(tokens[5]); // Column 5: Robot_Y
       float robotZ = std::stof(tokens[6]); // Column 6: Robot_Z
 
+      // Store the timestamp
+      timestamps.push_back(timestamp);
       // Add the 3D point to the trajectory
       trajectory.emplace_back(robotX, robotY, robotZ);
     } catch (const std::exception &e) {
@@ -151,5 +156,7 @@ DatasetReader::parseTrajectoryData(const std::string &fileName) {
 
   std::cout << "Loaded " << trajectory.size()
             << " points from file: " << fileName << std::endl;
-  return trajectory;
+  return {timestamps, trajectory};
 }
+
+

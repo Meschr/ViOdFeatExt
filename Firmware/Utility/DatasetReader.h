@@ -24,7 +24,7 @@ public:
   bool nextStereoImagePair(cv::Mat &leftImage, cv::Mat &rightImage, float resolution);
 
   // Function to parse trajectory data from the log file of the robotic arm
-  std::vector<cv::Point3f> parseTrajectoryData(const std::string &fileName);
+  std::pair<std::vector<double>, std::vector<cv::Point3f>> parseTrajectoryData(const std::string &fileName);
 
 private:
   fs::path datasetDirectory;

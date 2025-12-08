@@ -22,14 +22,14 @@ int main() {
 
   reader.loadImagePairs(subfolderName, false);
 
-  auto trajectory = reader.parseTrajectoryData(
+  auto [timestamps, trajectory] = reader.parseTrajectoryData(
       "RoboticArmMovements_251118/LOG251118_121811.txt");
 
   visualizeTrajectory(trajectory);
 
   cv::Mat imgL_raw, imgR_raw, imgL, imgR;
 
-  while (reader.nextStereoImagePair(imgL_raw, imgR_raw)) {
+  while (reader.nextStereoImagePair(imgL_raw, imgR_raw, 1.0f)) {
     calib.rectifyStereo(imgL_raw, imgR_raw, imgL, imgR);
     cv::imshow("Rectified Left Image", imgL);
     cv::imshow("Rectified Right Image", imgR);
