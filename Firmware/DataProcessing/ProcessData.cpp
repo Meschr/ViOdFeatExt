@@ -248,7 +248,6 @@ std::vector<cv::DMatch> img_to_matches(
 
     auto stereoMatches = descriptor_matcher(dL, dR, 0.6);
 
-
     return stereoMatches;
 }
 
@@ -275,8 +274,8 @@ std::vector<Landmark> img_to_landmark(
     }
 
     auto stereoMatches = descriptor_matcher(dL, dR, 0.7);
-    auto landmarks = stereo_landmarks(calib, kpsL, kpsR, dL, dR, stereoMatches);
-    return landmarks;
+    
+    return stereo_landmarks(calib, kpsL, kpsR, dL, dR, stereoMatches);
 }
 
 

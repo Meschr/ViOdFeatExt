@@ -4,6 +4,108 @@
 #include "DatasetReader.h"
 #include <iostream>
 
+bool estimateRigidSVD(
+    const std::vector<cv::Point3f> &src,
+    const std::vector<cv::Point3f> &dst,
+    cv::Mat &R, cv::Mat &t)
+{
+  int N = src.size();
+  if (N < 3)
+    return false;
+
+  cv::Mat srcMat(N, 3, CV_64F), dstMat(N, 3, CV_64F);
+
+  for (int i = 0; i < N; i++)
+  {
+    srcMat.at<double>(i, 0) = src[i].x;
+    srcMat.at<double>(i, 1) = src[i].y;
+    srcMat.at<double>(i, 2) = src[i].z;
+
+    dstMat.at<double>(i, 0) = dst[i].x;
+    dstMat.at<double>(i, 1) = dst[i].y;
+    dstMat.at<double>(i, 2) = dst[i].z;
+  }
+
+  cv::Mat centroidSrc, centroidDst;
+  cv::reduce(srcMat, centroidSrc, 0, cv::REDUCE_AVG);
+  cv::reduce(dstMat, centroidDst, 0, cv::REDUCE_AVG);
+
+  cv::Mat srcZero = srcMat - cv::repeat(centroidSrc, N, 1);
+  cv::Mat dstZero = dstMat - cv::repeat(centroidDst, N, 1);
+
+  cv::Mat H = srcZero.t() * dstZero;
+  cv::SVD svd(H);
+
+  R = svd.vt.t() * svd.u.t();
+
+  // Fix reflection
+  if (cv::determinant(R) < 0)
+  {
+    cv::Mat vt = svd.vt.clone();
+    vt.row(2) *= -1;
+    R = vt.t() * svd.u.t();
+  }
+
+  t = centroidDst.t() - R * centroidSrc.t();
+  return true;
+}
+
+cv::Affine3d estimateRigidRANSAC(
+    const std::vector<cv::Point3f> &src,
+    const std::vector<cv::Point3f> &dst,
+    int iterations = 200,
+    float threshold = 0.03f) // 3 cm threshold (adjust!)
+{
+  CV_Assert(src.size() == dst.size());
+  int N = src.size();
+
+  cv::RNG rng;
+  int bestInliers = 0;
+  cv::Mat bestR, bestT;
+
+  for (int it = 0; it < iterations; it++)
+  {
+    // --- Random minimal sample ---
+    std::vector<cv::Point3f> s, d;
+    for (int i = 0; i < 3; i++)
+    {
+      int idx = rng.uniform(0, N);
+      s.push_back(src[idx]);
+      d.push_back(dst[idx]);
+    }
+
+    cv::Mat R, t;
+    if (!estimateRigidSVD(s, d, R, t))
+      continue;
+
+    // --- Count inliers ---
+    int inliers = 0;
+    for (int i = 0; i < N; i++)
+    {
+      cv::Mat pt = (cv::Mat_<double>(3, 1) << src[i].x, src[i].y, src[i].z);
+      cv::Mat proj = R * pt + t;
+
+      cv::Point3f pred(proj.at<double>(0), proj.at<double>(1), proj.at<double>(2));
+      float err = cv::norm(pred - dst[i]);
+
+      if (err < threshold)
+        inliers++;
+    }
+
+    // --- Keep best ---
+    if (inliers > bestInliers)
+    {
+      bestInliers = inliers;
+      bestR = R.clone();
+      bestT = t.clone();
+    }
+  }
+
+  // Assemble final transform
+  cv::Affine3d T(bestR, bestT);
+  return T;
+}
+
 int main(int argc, char **argv)
 {
   DatasetReader reader("../../LogData/");
@@ -73,11 +175,18 @@ int main(int argc, char **argv)
         positions_last.push_back(last_landmarks[m.queryIdx].position);
         positions_current.push_back(landmarks[m.trainIdx].position);
       }
+      cv::Affine3d frame_transform = estimateRigidRANSAC(positions_last, positions_current);
 
+      std::cout << "Estimated frame-to-frame transformation:\n"
+                << "Rotation:\n"
+                << frame_transform.rotation() << "\n"
+                << "Translation:\n"
+                << frame_transform.translation() << "\n";
+
+    }
       frame_counter++;
       last_landmarks = landmarks;
-    }
 
-    return 0;
   }
+  return 0;
 }
