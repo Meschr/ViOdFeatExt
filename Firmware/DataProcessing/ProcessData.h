@@ -7,6 +7,7 @@ struct Landmark {
   cv::Point3f position;
   cv::Mat descriptor;
   cv::KeyPoint keypoint;
+  int ID;
 };
 
 std::vector<cv::KeyPoint> single_FAST(const cv::Mat &img);

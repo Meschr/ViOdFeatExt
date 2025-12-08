@@ -369,13 +369,16 @@ stereo_landmarks(const cv::Mat &P1, const cv::Mat &P2,
   querySet.reserve(matchesFrames.size());
   for (const auto &m : matchesFrames) {
     querySet.insert(m.queryIdx);
-    std::cout << m.queryIdx << " ";
+    //std::cout << m.queryIdx << " ";
   }
-
+  std::vector < int > idx;
+  
   for (const auto &m : matchesLR) {
-    std::cout << "Query IDx: " << m.queryIdx << std::endl;
-    if (querySet.find(m.queryIdx) != querySet.end()) {
-      std::cout << "Match accepted" << std::endl;
+    //std::cout << "Query IDx: " << m.queryIdx << std::endl;
+    if (querySet.find(m.queryIdx) != querySet.end())
+     {
+      idx.emplace_back(m.queryIdx);
+      //std::cout << "Match accepted" << std::endl;
       pts1.push_back(keypoints1[m.queryIdx].pt);
       pts2.push_back(keypoints2[m.trainIdx].pt);
     }
@@ -409,7 +412,8 @@ stereo_landmarks(const cv::Mat &P1, const cv::Mat &P2,
 
     Landmark lm = {.position = cv::Point3f(X, Y, Z),
                    .descriptor = chosenDesc.clone(),
-                   .keypoint = kp1};
+                   .keypoint = kp1,
+                   .ID = idx.at(i)};
 
     landmarks.push_back(std::move(lm));
   }

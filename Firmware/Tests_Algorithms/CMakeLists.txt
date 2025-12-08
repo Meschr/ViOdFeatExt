@@ -7,6 +7,7 @@ find_package(OpenCV REQUIRED)
 add_executable(test_sift_time ${CMAKE_CURRENT_SOURCE_DIR}/sift_time_test.cpp)
 add_executable(test_fast_time ${CMAKE_CURRENT_SOURCE_DIR}/fast_test.cpp)
 add_executable(test_kp_tracking ${CMAKE_CURRENT_SOURCE_DIR}/keypoint_tracker_test.cpp)
+add_executable(test_crossframe ${CMAKE_CURRENT_SOURCE_DIR}/crossframe.cpp)
 
 # fixing opencv to work for me
 target_include_directories(test_sift_time PRIVATE 
@@ -15,6 +16,11 @@ target_include_directories(test_sift_time PRIVATE
 )
 
 target_include_directories(test_fast_time PRIVATE 
+  {CMAKE_SOURCE_DIR}/../DataProcessing
+  {OpenCV_INCLUDE_DIRS}
+)
+
+target_include_directories(test_crossframe PRIVATE 
   {CMAKE_SOURCE_DIR}/../DataProcessing
   {OpenCV_INCLUDE_DIRS}
 )
@@ -30,6 +36,7 @@ target_include_directories(test_kp_tracking PRIVATE
 target_link_libraries(test_sift_time PRIVATE ${OpenCV_LIBS} dataProcessing)
 target_link_libraries(test_fast_time PRIVATE ${OpenCV_LIBS} dataProcessing)
 target_link_libraries(test_kp_tracking PRIVATE ${OpenCV_LIBS} dataProcessing captureDevice Utility)
+target_link_libraries(test_crossframe PRIVATE ${OpenCV_LIBS} Utility dataProcessing)
 
 # Optionally set C++ standard
 target_compile_features(test_sift_time PRIVATE cxx_std_11)

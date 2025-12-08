@@ -29,7 +29,7 @@ int main(int argc, char** argv) {
   int frame_counter = 0;
 
   //-------------------------------------------------k --> 1 = ORB, 2 = BRISK------------------------------------------------------------------------------
-  int k = 2; 
+  int k = 1; 
   //--------------------------------------------------- resolution = 0.5 means half the size of the image----------------------------------------
   float resolution = 1;
 
@@ -43,7 +43,7 @@ int main(int argc, char** argv) {
     //cv::imshow("Rectified Left Image", imgL);
     //cv::imshow("Rectified Right Image", imgR);
 
-    if (frame_counter == 1)
+    if (frame_counter == 0)
     {
       lastR = imgR.clone();
       lastL = imgL.clone();
@@ -52,9 +52,8 @@ int main(int argc, char** argv) {
     
     
 
-    auto matches = img_to_matches(calib, imgL, lastL, k);
-    auto landmarks = img_to_landmark(calib, imgL, lastL, k);
-
+    auto matches = img_to_matches(calib, imgL, imgR, k);
+    auto landmarks = img_to_landmark(calib, imgL, imgR, k);
     lastR = imgR.clone();
     lastL = imgL.clone();
 
