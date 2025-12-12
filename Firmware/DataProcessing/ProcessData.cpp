@@ -327,7 +327,7 @@ stereo_landmarks(const cv::Mat &P1, const cv::Mat &P2,
     float Y = points4D.at<float>(1, i) / points4D.at<float>(3, i);
     float Z = points4D.at<float>(2, i) / points4D.at<float>(3, i);
 
-    if (!std::isfinite(Z) || Z <= 0.0f)
+    if (!std::isfinite(Z) || Z <= 0.0f || Z > 100.0f)
       continue;
 
     const cv::DMatch &m = matches[i];
