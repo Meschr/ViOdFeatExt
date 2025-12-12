@@ -150,10 +150,10 @@ int main(int argc, char **argv)
   {
 
     // Skip frames that are not every 10th
-    // if (frame_counter % 10 != 0) {
-    //     frame_counter++;
-    //     continue;
-    // }
+    if (frame_counter % 5 != 0) {
+        frame_counter++;
+        continue;
+    }
     calib.rectifyStereo(imgL_raw, imgR_raw, imgL, imgR);
 
     auto landmarks = img_to_landmark(calib, imgL, imgR, k);
@@ -177,11 +177,7 @@ int main(int argc, char **argv)
         // positions_last.push_back(lm.position);
       }
 
-      auto matches = descriptor_matcher(descriptors_current, descriptors_last, 0.9f);
-      if (matches.size() == 0){
-        frame_counter ++;
-        continue;}
-
+      auto matches = descriptor_matcher(descriptors_current, descriptors_last, 0.5f);
       std::cout << "Number of matches with last frame: " << matches.size() << std::endl;
 
       positions_current.reserve(matches.size());
