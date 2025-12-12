@@ -6,6 +6,7 @@ find_package(OpenCV REQUIRED)
 
 add_executable(checkboard_calibration ${CMAKE_CURRENT_SOURCE_DIR}/checkboard_calibration.cpp)# add_executable(approx_calibration ${CMAKE_CURRENT_SOURCE_DIR}/approximationCalibration.cpp)
 add_executable(test_depth ${CMAKE_CURRENT_SOURCE_DIR}/depth_test.cpp)
+add_executable(test_trans ${CMAKE_CURRENT_SOURCE_DIR}/test_frame_trans.cpp)
 
 # Ensure headers are findable
 target_include_directories(checkboard_calibration PRIVATE
@@ -23,10 +24,19 @@ target_include_directories(test_depth PRIVATE
   {CMAKE_SOURCE_DIR}/../DataProcessing
 )
 
+target_include_directories(test_trans PRIVATE
+  {CMAKE_SOURCE_DIR}/../Capture
+  {CMAKE_SOURCE_DIR}/../DataProcessing
+  {CMAKE_SOURCE_DIR}/../Utility
+) 
+
+
 # Link the firmware libraries built by parent
 target_link_libraries(checkboard_calibration PRIVATE dataProcessing)
 # target_link_libraries(approx_calibration PRIVATE dataProcessing)
 target_link_libraries(test_depth PRIVATE captureDevice dataProcessing)
+target_link_libraries(test_trans PRIVATE captureDevice dataProcessing Utility)
+
 
 # Optionally set C++ standard
 target_compile_features(checkboard_calibration PRIVATE cxx_std_11)

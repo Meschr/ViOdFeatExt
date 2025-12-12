@@ -1,6 +1,7 @@
 #include "ProcessData.h"
 #include <iostream>
 #include <unordered_set>
+#include <chrono>
 
 std::vector<cv::KeyPoint> single_FAST(const cv::Mat &img) {
   auto fast = cv::FastFeatureDetector::create(50);
@@ -115,7 +116,7 @@ void draw_and_show(const cv::Mat &imgL, const cv::Mat &imgR, int alg) {
   }
 
   //auto stereoMatches = descriptor_matcher(dL, dR, 0.6);
-  auto stereoMatches = filtered_descriptor_matcher(dL, dR, kpsL, kpsR, 0.6);// can change this value to say how much better the best match has to be compared to second best
+  auto stereoMatches = filtered_descriptor_matcher(dL, dR, kpsL, kpsR, 0.3);// can change this value to say how much better the best match has to be compared to second best
 
   cv::drawMatches(imgL, kpsL, imgR, kpsR, stereoMatches, img_matches);
   cv::Mat small_matches;
@@ -288,6 +289,8 @@ std::vector<Landmark> img_to_landmark(
   return landmarks;
 }
 
+
+
 std::vector<Landmark>
 stereo_landmarks(const cv::Mat &P1, const cv::Mat &P2,
                  const std::vector<cv::KeyPoint> &keypoints1,
@@ -440,4 +443,19 @@ std::vector<Landmark> stereo_landmarks(
     calib.calcRectifyParameters();
   return stereo_landmarks(calib.P1, calib.P2, keypoints1, keypoints2,
                           descriptors1, descriptors2, matchesLR, matchesFrames);
+}
+
+
+
+
+//Timer definitions =======================================
+Timer::Timer(const char* n) : name(n) {}
+
+void Timer::start() {
+    t = std::chrono::high_resolution_clock::now();
+}
+
+void Timer::end() {
+    auto dt = std::chrono::high_resolution_clock::now() - t;
+    std::cout << "Time taken for " << name << ": " << std::chrono::duration<double>(dt).count() << " s\n";
 }

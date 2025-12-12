@@ -85,12 +85,15 @@ int main() {
       std::cout << "positions1: "<< lm.position << "ID: "<< lm.ID << std::endl;
       positions.push_back(lm.position);
     }
-
     if (frame_counter == 2)
         {
             allLandmarks.emplace_back(landmarks);
             continue;
     }
+
+
+
+
 
     std::vector<cv::Point3f> positions2;
     for (const auto &lm2 : allLandmarks.back()) {
@@ -98,6 +101,27 @@ int main() {
       positions2.push_back(lm2.position);
     }
 
+
+    std::vector<cv::Point3f> srcPoints; // previous frame
+    std::vector<cv::Point3f> dstPoints; // current frame
+
+
+    //define the Timer 
+    Timer t("stereo matching");
+    t.start();
+
+
+    t.end();
+
+    Timer t2("printing");
+    t2.start();
+
+    std::cout << "positions1: "<< dstPoints<< std::endl;
+    std::cout << "positions2: "<< srcPoints<< std::endl;
+
+
+
+    t2.end();
     allLandmarks.emplace_back(landmarks);
 
 

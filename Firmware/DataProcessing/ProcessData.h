@@ -10,6 +10,16 @@ struct Landmark {
   int ID;
 };
 
+
+struct Timer {
+    const char* name;
+    std::chrono::high_resolution_clock::time_point t;
+    Timer(const char* n);
+    void start();
+    void end();
+};
+
+
 std::vector<cv::KeyPoint> single_FAST(const cv::Mat &img);
 std::pair<std::vector<cv::KeyPoint>, cv::Mat> single_ORB(const cv::Mat &img);
 std::pair<std::vector<cv::KeyPoint>, cv::Mat> single_SIFT(const cv::Mat &img);

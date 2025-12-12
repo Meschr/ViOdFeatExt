@@ -1,38 +1,105 @@
-import matplotlib.pyplot as plt
 import numpy as np
+import plotly.graph_objects as go
 
-# Load CSV, skip the header rows
-data = np.loadtxt("transform.csv", delimiter=",")
+# --- Helper: moving average smoothing ---
+def smooth(data, window_size=5):
+    window = np.ones(window_size) / window_size
+    return np.convolve(data, window, mode='same')
 
-# Extract translation vector (last column)
-t = data[:, 3]
+# --- Load CSV ---
+data = np.loadtxt("translations.csv", delimiter=",")
 
-# Create 3D plot
-fig = plt.figure()
-ax = fig.add_subplot(111, projection='3d')
+# --- Filter out outliers where any component > 25 ---
+x = data[:, 0]
+y = data[:, 1]
+z = data[:, 2]
 
-# Origin
-origin = np.array([0, 0, 0])
-ax.scatter(*origin, color='blue', label='Origin')
+mask = (np.abs(x) <= 25) & (np.abs(y) <= 25) & (np.abs(z) <= 25)
+x = x[mask]
+y = y[mask]
+z = z[mask]
 
-# Draw translation vector
-ax.quiver(
-    origin[0], origin[1], origin[2],  # start point
-    t[0], t[1], t[2],                # vector components
-    color='red',
-    arrow_length_ratio=0.1,
-    linewidth=2,
-    label='Translation'
+frames = np.arange(len(x))  # frame indices after filtering
+
+# --- Compute cumulative positions ---
+x_cum = np.cumsum(x)
+y_cum = np.cumsum(y)
+z_cum = np.cumsum(z)
+
+# --- Smooth both translations and cumulative positions ---
+window_size = 5
+x_smooth = smooth(x, window_size)
+y_smooth = smooth(y, window_size)
+z_smooth = smooth(z, window_size)
+
+x_cum_smooth = smooth(x_cum, window_size)
+y_cum_smooth = smooth(y_cum, window_size)
+z_cum_smooth = smooth(z_cum, window_size)
+
+# --- Function to create 2D line plots for browser ---
+def plot_2d(frames, raw, smooth_data, cum=False, axis_name='X'):
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=frames, y=raw, mode='lines+markers', name='Raw', marker=dict(size=4, color='blue')))
+    fig.add_trace(go.Scatter(x=frames, y=smooth_data, mode='lines', name='Smoothed', line=dict(color='orange', width=2)))
+    fig.update_layout(
+        title=f"{axis_name} {'Cumulative Position' if cum else 'Translation'} over time",
+        xaxis_title='Frame',
+        yaxis_title=f"{axis_name} {'Position' if cum else 'Translation'}",
+        width=900,
+        height=500
+    )
+    fig.show()
+
+# --- Plot translations in browser ---
+plot_2d(frames, x, x_smooth, cum=False, axis_name='X')
+plot_2d(frames, y, y_smooth, cum=False, axis_name='Y')
+plot_2d(frames, z, z_smooth, cum=False, axis_name='Z')
+
+# --- Plot cumulative positions in browser ---
+plot_2d(frames, x_cum, x_cum_smooth, cum=True, axis_name='X')
+plot_2d(frames, y_cum, y_cum_smooth, cum=True, axis_name='Y')
+plot_2d(frames, z_cum, z_cum_smooth, cum=True, axis_name='Z')
+
+# --- 3D Trajectories: raw, smoothed, and cumulative ---
+fig3d = go.Figure()
+
+# Raw trajectory
+fig3d.add_trace(go.Scatter3d(
+    x=x, y=y, z=z,
+    mode='lines+markers',
+    name='Raw Trajectory',
+    marker=dict(size=3, color='blue'),
+    line=dict(width=2)
+))
+
+# Smoothed trajectory
+fig3d.add_trace(go.Scatter3d(
+    x=x_smooth, y=y_smooth, z=z_smooth,
+    mode='lines+markers',
+    name='Smoothed Trajectory',
+    marker=dict(size=3, color='green'),
+    line=dict(width=2, dash='dash')
+))
+
+# Cumulative trajectory
+fig3d.add_trace(go.Scatter3d(
+    x=x_cum, y=y_cum, z=z_cum,
+    mode='lines+markers',
+    name='Cumulative Trajectory',
+    marker=dict(size=3, color='orange'),
+    line=dict(width=3)
+))
+
+fig3d.update_layout(
+    title='3D Trajectories: Raw, Smoothed, and Cumulative',
+    scene=dict(
+        xaxis_title='X Position',
+        yaxis_title='Y Position',
+        zaxis_title='Z Position'
+    ),
+    width=900,
+    height=700
 )
 
-# Set labels and title
-ax.set_xlabel("X")
-ax.set_ylabel("Y")
-ax.set_zlabel("Z")
-ax.set_title("Translation Vector")
-ax.legend()
-ax.set_box_aspect([1, 1, 1])  # Equal aspect ratio
-
-# Save figure and show
-plt.savefig("translation_vector.png")
-plt.show()
+# Show 3D interactive plot in browser
+fig3d.show()
