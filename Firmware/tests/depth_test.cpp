@@ -45,8 +45,7 @@ int main(int argc, char **argv)
     auto landmarks = stereo_landmarks(calib, keypoints1, keypoints2, descriptors1, descriptors2, matches);
 
     // Show data
-    int k = 1;
-    draw_and_show(imgL, imgR, k);
+    draw_and_show(imgL, imgR, ORB_DESCRIPTOR);
     for (const auto &lm : landmarks)
     {
       std::cout << lm.position << std::endl;

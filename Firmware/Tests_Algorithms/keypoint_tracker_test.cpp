@@ -29,7 +29,7 @@ int main(int argc, char** argv) {
   int frame_counter = 0;
 
   //-------------------------------------------------k --> 1 = ORB, 2 = BRISK------------------------------------------------------------------------------
-  int k = 1; 
+  DescriptorType k = ORB_DESCRIPTOR; 
   //--------------------------------------------------- resolution = 0.5 means half the size of the image----------------------------------------
   float resolution = 1;
 

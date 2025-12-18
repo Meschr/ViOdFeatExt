@@ -3,6 +3,12 @@
 #include "Calibration.h"
 #include <opencv2/opencv.hpp>
 
+enum DescriptorType {
+  ORB_DESCRIPTOR,
+  // SIFT_DESCRIPTOR,
+  BRISK_DESCRIPTOR
+};
+
 struct Landmark {
   cv::Point3f position;
   cv::Mat descriptor;
@@ -39,7 +45,7 @@ std::vector<cv::DMatch> filtered_descriptor_matcher(
     const std::vector<cv::KeyPoint> &keypoints1,
     const std::vector<cv::KeyPoint> &keypoints2, const float thresh);
 
-void draw_and_show(const cv::Mat &imgL, const cv::Mat &imgR, int alg);
+void draw_and_show(const cv::Mat &imgL, const cv::Mat &imgR, DescriptorType alg);
 
 void draw_and_show(const cv::Mat &imgL, const cv::Mat &imgR,
                    const std::vector<cv::KeyPoint> &kpsL,
@@ -51,15 +57,15 @@ void draw_landmark_kyp(const cv::Mat &img,
 
 std::vector<cv::Point3f> img_to_3dpoints(Calibration &calib,
                                          const cv::Mat &leftimg,
-                                         const cv::Mat &rightimg, int alg);
+                                         const cv::Mat &rightimg, DescriptorType alg);
 
 std::vector<Landmark> img_to_landmark(Calibration &calib,
                                       const cv::Mat &leftimg,
-                                      const cv::Mat &rightimg, int alg);
+                                      const cv::Mat &rightimg, DescriptorType alg);
 
 std::vector<cv::DMatch> img_to_matches(Calibration &calib,
                                        const cv::Mat &leftimg,
-                                       const cv::Mat &rightimg, int alg);
+                                       const cv::Mat &rightimg, DescriptorType alg);
 
 std::vector<cv::Point3f>
 stereo_3Dpoints(const cv::Mat &P1, const cv::Mat &P2,

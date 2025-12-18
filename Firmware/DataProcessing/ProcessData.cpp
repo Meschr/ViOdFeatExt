@@ -3,6 +3,11 @@
 #include <unordered_set>
 #include <chrono>
 
+std::map<int, std::string> alg_names = {
+    {BRISK_DESCRIPTOR, "BRISK"},
+    {ORB_DESCRIPTOR, "ORB"}
+};
+
 std::vector<cv::KeyPoint> single_FAST(const cv::Mat &img) {
   auto fast = cv::FastFeatureDetector::create(50);
   std::vector<cv::KeyPoint> keypoints;
@@ -97,7 +102,7 @@ std::vector<cv::DMatch> filtered_descriptor_matcher(const cv::Mat &descriptors1,
 
 
 // for diplaying 2 images side by side ans connecting keypoints
-void draw_and_show(const cv::Mat &imgL, const cv::Mat &imgR, int alg) {
+void draw_and_show(const cv::Mat &imgL, const cv::Mat &imgR, DescriptorType alg) {
   cv::Mat img_matches;
   std::cout << alg << std::endl;
   std::vector<cv::KeyPoint> kpsL, kpsR;
@@ -105,11 +110,11 @@ void draw_and_show(const cv::Mat &imgL, const cv::Mat &imgR, int alg) {
 
   switch (alg)
   {
-    case 1:
+    case ORB_DESCRIPTOR:
         std::tie(kpsL, dL) = single_ORB(imgL);
         std::tie(kpsR, dR) = single_ORB(imgR);  
         break;
-    case 2:
+    case BRISK_DESCRIPTOR:
         std::tie(kpsL, dL) = single_BRISK(imgL);
         std::tie(kpsR, dR) = single_BRISK(imgR);
         
@@ -122,13 +127,8 @@ void draw_and_show(const cv::Mat &imgL, const cv::Mat &imgR, int alg) {
   cv::Mat small_matches;
 
   cv::resize(img_matches, small_matches, cv::Size(), 1, 1);
-
-  if (alg == 1) {
-    cv::imshow("Feature Match with ORB", small_matches);
-  }
-  if (alg == 2) {
-    cv::imshow("Feature Match with BRISK", small_matches);
-  }
+  
+  cv::imshow("Feature Match with "  + alg_names[alg], small_matches);
 }
 
 void draw_and_show(const cv::Mat &imgL, const cv::Mat &imgR,
@@ -203,7 +203,7 @@ std::vector<cv::Point3f> img_to_3dpoints(
         Calibration &calib,
         const cv::Mat &imgL,
         const cv::Mat &imgR,
-        int alg )
+        DescriptorType alg )
 {
 
   std::vector<cv::KeyPoint> kpsL, kpsR;
@@ -211,11 +211,11 @@ std::vector<cv::Point3f> img_to_3dpoints(
 
   switch (alg)
   {
-    case 1:
+    case ORB_DESCRIPTOR:
         std::tie(kpsL, dL) = single_ORB(imgL);
         std::tie(kpsR, dR) = single_ORB(imgR);  
         break;
-    case 2:
+    case BRISK_DESCRIPTOR:
         std::tie(kpsL, dL) = single_BRISK(imgL);
         std::tie(kpsR, dR) = single_BRISK(imgR);
         
@@ -239,21 +239,20 @@ std::vector<cv::DMatch> img_to_matches(
         Calibration &calib,
         const cv::Mat &imgL,
         const cv::Mat &imgR,
-        int alg)
+        DescriptorType alg)
 {
     std::vector<cv::KeyPoint> kpsL, kpsR;
     cv::Mat dL, dR;
 
     switch (alg)
     {
-      case 1:
+      case ORB_DESCRIPTOR:
           std::tie(kpsL, dL) = single_ORB(imgL);
           std::tie(kpsR, dR) = single_ORB(imgR);  
           break;
-      case 2:
+      case BRISK_DESCRIPTOR:
           std::tie(kpsL, dL) = single_BRISK(imgL);
-          std::tie(kpsR, dR) = single_BRISK(imgR);
-          
+          std::tie(kpsR, dR) = single_BRISK(imgR);     
     }
 
     auto stereoMatches = filtered_descriptor_matcher(dL, dR, kpsL, kpsR, 0.6);
@@ -267,18 +266,18 @@ std::vector<Landmark> img_to_landmark(
         Calibration &calib,
         const cv::Mat &imgL,
         const cv::Mat &imgR,
-        int alg)
+        DescriptorType alg)
 {
     std::vector<cv::KeyPoint> kpsL, kpsR;
     cv::Mat dL, dR;
 
     switch (alg)
     {
-      case 1:
+      case ORB_DESCRIPTOR:
           std::tie(kpsL, dL) = single_ORB(imgL);
           std::tie(kpsR, dR) = single_ORB(imgR);  
           break;
-      case 2:
+      case BRISK_DESCRIPTOR:
           std::tie(kpsL, dL) = single_BRISK(imgL);
           std::tie(kpsR, dR) = single_BRISK(imgR);
           

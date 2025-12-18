@@ -219,7 +219,8 @@ bool estimateRigidRANSAC(const std::vector<cv::Point3f> &src,
 
 bool transformation_calculation(const std::vector<Landmark> &landmarks,
                                 const std::vector<Landmark> &last_landmarks,
-                                cv::Affine3d &transformation){
+                                cv::Affine3d &transformation,
+                                const TransformationType type){
   cv::Mat descriptors_current, descriptors_last;
   cv::Mat positions_current, positions_last;
 
@@ -246,15 +247,29 @@ bool transformation_calculation(const std::vector<Landmark> &landmarks,
 
   cv::Mat R = cv::Mat::eye(3, 3, CV_32F); 
   cv::Mat t = cv::Mat::zeros(3, 1, CV_32F);
-  if (!estimateRigidRANSAC(positions_last, positions_current, R, t))
+
+  switch (type)
   {
+  case UNDEFINED_TYPE:
     std::cerr << "RANSAC failed to estimate transformation.\n";
     return false;
-  }
-  if(!estimareRigidCeres(positions_last, positions_current, R, t))
-  {
-    std::cerr << "Ceres failed to estimate transformation.\n";
-    return false;
+  case RANSAC_SVD_CERES:
+  case RANSAC_SVD:
+    if (!estimateRigidRANSAC(positions_last, positions_current, R, t))
+    {
+      std::cerr << "RANSAC failed to estimate transformation.\n";
+      return false;
+    }
+    if(RANSAC_SVD == type) break;
+  case CERES:
+    if(!estimareRigidCeres(positions_last, positions_current, R, t))
+    {
+      std::cerr << "Ceres failed to estimate transformation.\n";
+      return false;
+    }
+    if(CERES == type) break;
+  default:
+    break;
   }
 
   transformation = cv::Affine3d(R, t); 

@@ -38,8 +38,6 @@ int main(int argc, char **argv)
   cv::Mat imgL_raw, imgR_raw, imgL, imgR, lastR, lastL;
   int frame_counter = 0;
 
-  //-------------------------------------------------k --> 1 = ORB, 2 = BRISK------------------------------------------------------------------------------
-  int k = 2;
   //--------------------------------------------------- resolution = 0.5 means half the size of the image----------------------------------------
   float resolution = 1.;
 
@@ -52,12 +50,13 @@ int main(int argc, char **argv)
       continue;
 
     calib.rectifyStereo(imgL_raw, imgR_raw, imgL, imgR);
-    auto landmarks = img_to_landmark(calib, imgL, imgR, k);
+    auto landmarks = img_to_landmark(calib, imgL, imgR, BRISK_DESCRIPTOR);
 
     std::cout << "Frame: " << frame_counter << std::endl;
 
     cv::Affine3d transformation;
-    if (!last_landmarks.empty() && transformation_calculation(landmarks, last_landmarks, transformation))
+
+    if (!last_landmarks.empty() && transformation_calculation(landmarks, last_landmarks, transformation, RANSAC_SVD_CERES))
     {
       // std::cout << "Estimated Transformation:\n" << transformation.translation() << std::endl;
       cv::Vec3d translation = transformation.translation();
