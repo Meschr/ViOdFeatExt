@@ -34,7 +34,7 @@ struct PointToPointResidual {
   Eigen::Vector3d q_;
 };
 
-bool estimareRigidCeres(const std::vector<cv::Point3f> &src,
+bool estimateRigidCeres(const std::vector<cv::Point3f> &src,
                         const std::vector<cv::Point3f> &dst,
                         cv::Mat &R, cv::Mat &t)
 {
@@ -65,8 +65,7 @@ bool estimareRigidCeres(const std::vector<cv::Point3f> &src,
   }
 
   // Enforce unit quaternion
-  problem.SetParameterization(q_rotation,
-    new ceres::QuaternionParameterization());
+  problem.SetParameterization(q_rotation, new ceres::QuaternionParameterization());
 
   ceres::Solver::Options options;
   options.linear_solver_type = ceres::DENSE_QR;

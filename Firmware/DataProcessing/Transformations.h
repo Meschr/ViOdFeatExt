@@ -14,6 +14,10 @@ enum TransformationType {
   RANSAC_SVD_CERES
 };
 
+bool estimateRigidCeres(const std::vector<cv::Point3f> &src,
+                        const std::vector<cv::Point3f> &dst,
+                        cv::Mat &R, cv::Mat &t);
+                        
 bool estimateRigidSVD(const std::vector<cv::Point3f> &src,
                       const std::vector<cv::Point3f> &dst,
                       cv::Mat &R, cv::Mat &t);
