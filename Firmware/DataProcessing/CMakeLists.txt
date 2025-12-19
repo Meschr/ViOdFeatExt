@@ -13,15 +13,27 @@ set(DATAPROCESSING_SOURCES
   ${CMAKE_CURRENT_SOURCE_DIR}/Transformations.cpp
   )
 
+# Sources
+set(EKF_SOURCES
+  ${CMAKE_CURRENT_SOURCE_DIR}/ekf.cpp
+  )
+
 add_library(dataProcessing STATIC ${DATAPROCESSING_SOURCES})
+add_library(ekfProcessing STATIC ${EKF_SOURCES})
 
 target_include_directories(dataProcessing
   PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${OpenCV_INCLUDE_DIRS}
 )
+target_include_directories(ekfProcessing
+  PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${OpenCV_INCLUDE_DIRS}
+)
 
 target_link_libraries(dataProcessing PRIVATE ${OpenCV_LIBS} stdc++fs PUBLIC Ceres::ceres Eigen3::Eigen)
+target_link_libraries(ekfProcessing PRIVATE ${OpenCV_LIBS} stdc++fs)
 
-# Ensure a sane C standard for consumers
 target_compile_features(dataProcessing PUBLIC cxx_std_11)
+target_compile_features(ekfProcessing PUBLIC cxx_std_11)

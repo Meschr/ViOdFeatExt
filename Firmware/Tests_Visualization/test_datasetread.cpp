@@ -22,7 +22,7 @@ int main() {
 
   reader.loadImagePairs(subfolderName, false);
 
-  auto trajectory = reader.parseTrajectoryData(
+  auto [timestamps, trajectory] = reader.parseTrajectoryData(
       "RoboticArmMovements_251118/LOG251118_121811.txt");
 
   visualizeTrajectory(trajectory);

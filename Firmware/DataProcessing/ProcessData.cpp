@@ -283,9 +283,9 @@ std::vector<Landmark> img_to_landmark(
           
     }
 
-  auto stereoMatches = descriptor_matcher(dL, dR, 0.7);
-  auto landmarks = stereo_landmarks(calib, kpsL, kpsR, dL, dR, stereoMatches);
-  return landmarks;
+    auto stereoMatches = descriptor_matcher(dL, dR, 0.7);
+    
+    return stereo_landmarks(calib, kpsL, kpsR, dL, dR, stereoMatches);
 }
 
 

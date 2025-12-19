@@ -261,7 +261,7 @@ bool transformation_calculation(const std::vector<Landmark> &landmarks,
     }
     if(RANSAC_SVD == type) break;
   case CERES:
-    if(!estimareRigidCeres(positions_last, positions_current, R, t))
+    if(!estimateRigidCeres(positions_last, positions_current, R, t))
     {
       std::cerr << "Ceres failed to estimate transformation.\n";
       return false;
